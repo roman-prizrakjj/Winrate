@@ -1,0 +1,66 @@
+[
+  {
+    "id": "tournaments_teams",
+    "_id": "70464598-4d4e-46d8-a707-e9f24803158a"
+  },
+  {
+    "id": "tournaments_teams_stages",
+    "_id": "10f7cfbb-bbb7-4936-b297-1ba90d80032a"
+  },
+  {
+    "id": "stages",
+    "_id": "52aa4e2d-3dbf-4df2-8d9e-3c36be0c1949"
+  },
+  {
+    "id": "divisions",
+    "_id": "168100fe-4e37-4c98-ad03-879063481206"
+  },
+  {
+    "id": "matches_teams",
+    "_id": "c002136d-d12a-4773-9560-ea598d1c2254"
+  },
+  {
+    "id": "matches",
+    "_id": "3157290c-87dd-4e2e-9744-944e8c284720"
+  },
+  {
+    "id": "tours",
+    "_id": "4afef67e-c52c-46e7-a8c8-bc78aa90539c"
+  },
+  {
+    "id": "invite_links_joined_participants",
+    "_id": "dc9f3298-eddc-419a-bfc5-bbf8fe0017a8"
+  },
+  {
+    "id": "invite_links",
+    "_id": "0cc3d0ce-0fd6-44b8-8cc8-62a3d2fcf855"
+  },
+  {
+    "id": "videos",
+    "_id": "f258246d-2434-4b82-a70d-428a0c5fb0b4"
+  },
+  {
+    "id": "teams_participants",
+    "_id": "fcf579f0-0f80-468c-a568-0313e7022ccd"
+  },
+  {
+    "id": "teams",
+    "_id": "a8013391-320e-4fc7-9437-453cbc46d493"
+  },
+  {
+    "id": "tournaments",
+    "_id": "b9b00030-a593-417a-a671-075fab8dd6be"
+  },
+  {
+    "id": "disciplines",
+    "_id": "352656fe-50e3-4264-822f-8254c4524006"
+  },
+  {
+    "id": "news",
+    "_id": "cd210e4b-5b6d-4849-80ec-c8807b4de336"
+  },
+  {
+    "id": "educational_organizations",
+    "_id": "3ee38f8f-625a-4183-953a-dfdfc87e27b7"
+  }
+]

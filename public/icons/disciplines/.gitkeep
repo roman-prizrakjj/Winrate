@@ -1,0 +1,15 @@
+# Иконки дисциплин
+
+Здесь хранятся иконки игровых дисциплин в формате SVG/PNG.
+
+## Структура:
+- dota2.svg - Dota 2
+- cs2.svg - Counter-Strike 2
+- valorant.svg - Valorant
+- league-of-legends.svg - League of Legends
+- mobile-legends.svg - Mobile Legends
+
+## Рекомендации:
+- Формат: SVG (предпочтительно) или PNG
+- Размер: 64x64px минимум
+- Цвет: желательно монохром для гибкости стилизации
