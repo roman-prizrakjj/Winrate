@@ -6,6 +6,7 @@ import MatchList, { Match } from "@/components/MatchList";
 import SearchInput from "@/components/SearchInput";
 import { generateMockMatches } from "@/lib/mockData";
 import { getAllDisciplines } from "@/lib/disciplines";
+import { getTournaments, Tournament } from "@/lib/api";
 
 interface DashboardData {
   matches: Match[];
@@ -18,13 +19,22 @@ export default function Dashboard1() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDiscipline, setSelectedDiscipline] = useState<string>("Все");
+  const [selectedTournament, setSelectedTournament] = useState<string>("Все");
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
 
   useEffect(() => {
-    // Замените на ваш API endpoint
+    // Загрузка данных матчей и турниров
     const fetchData = async () => {
       try {
+        // Загружаем турниры параллельно
+        const tournamentsPromise = getTournaments();
+        
         // Генерируем 100 матчей для демонстрации
         const mockMatches = generateMockMatches(100);
+
+        // Ждем загрузки турниров
+        const loadedTournaments = await tournamentsPromise;
+        setTournaments(loadedTournaments);
 
         setTimeout(() => {
           setData({ matches: mockMatches });
@@ -41,7 +51,7 @@ export default function Dashboard1() {
   }, []);
 
   // Функция фильтрации матчей
-  const applyFilters = (matches: Match[], search: string, discipline: string) => {
+  const applyFilters = (matches: Match[], search: string, discipline: string, tournament: string) => {
     let filtered = matches;
 
     // Фильтр по поисковому запросу
@@ -58,6 +68,11 @@ export default function Dashboard1() {
       filtered = filtered.filter(match => match.discipline === discipline);
     }
 
+    // Фильтр по турниру
+    if (tournament !== "Все") {
+      filtered = filtered.filter(match => match.tournament === tournament);
+    }
+
     return filtered;
   };
 
@@ -65,14 +80,21 @@ export default function Dashboard1() {
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     if (!data) return;
-    setFilteredMatches(applyFilters(data.matches, query, selectedDiscipline));
+    setFilteredMatches(applyFilters(data.matches, query, selectedDiscipline, selectedTournament));
   };
 
   // Функция изменения дисциплины
   const handleDisciplineChange = (discipline: string) => {
     setSelectedDiscipline(discipline);
     if (!data) return;
-    setFilteredMatches(applyFilters(data.matches, searchQuery, discipline));
+    setFilteredMatches(applyFilters(data.matches, searchQuery, discipline, selectedTournament));
+  };
+
+  // Функция изменения турнира
+  const handleTournamentChange = (tournament: string) => {
+    setSelectedTournament(tournament);
+    if (!data) return;
+    setFilteredMatches(applyFilters(data.matches, searchQuery, selectedDiscipline, tournament));
   };
 
   const handleMatchDetails = (matchId: string) => {
@@ -160,6 +182,26 @@ export default function Dashboard1() {
                   {getAllDisciplines().map(discipline => (
                     <option key={discipline} value={discipline}>
                       {discipline}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Фильтр по турнирам */}
+                <select
+                  value={selectedTournament}
+                  onChange={(e) => handleTournamentChange(e.target.value)}
+                  className="
+                    bg-[#282E3B] text-white
+                    border border-white/10 rounded-lg
+                    px-4 py-2 min-w-[200px]
+                    focus:outline-none focus:border-[#2581FF]
+                    cursor-pointer
+                  "
+                >
+                  <option value="Все">Все турниры</option>
+                  {tournaments.map(tournament => (
+                    <option key={tournament._id} value={tournament.title}>
+                      {tournament.title}
                     </option>
                   ))}
                 </select>

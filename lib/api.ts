@@ -39,7 +39,15 @@ apiClient.interceptors.response.use(
   }
 );
 
-// Примеры API функций
+// DEPRECATED: Этот файл оставлен для обратной совместимости
+// Используйте новую структуру: import { ... } from '@/lib/api'
+// или напрямую: import { ... } from '@/lib/api/tournaments'
+
+// Реэкспорт из новой структуры для обратной совместимости
+export { getTournaments, clearTournamentsCache } from './api/tournaments';
+export type { Tournament } from './api/tournaments';
+
+// Примеры API функций (старый код)
 export const api = {
   // Получить данные для Dashboard 1
   getDashboard1Data: async () => {
