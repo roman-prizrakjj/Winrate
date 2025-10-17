@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import TeamStatsTable, { TeamStats } from "@/components/TeamStatsTable";
-import { generateMockTeams } from "@/lib/mockData";
+import { getTeamStats, type TeamStatsResponse } from "@/lib/api/team-stats";
 
 interface DashboardData {
   teams: TeamStats[];
@@ -17,14 +17,54 @@ export default function Dashboard2() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Генерируем 50 команд для демонстрации
-        const mockTeams = generateMockTeams(50);
-
-        setTimeout(() => {
-          setData({ teams: mockTeams });
-          setLoading(false);
-        }, 1000);
+        setLoading(true);
+        
+        // Получаем реальные данные из MongoDB
+        const statsData = await getTeamStats();
+        
+        // Преобразуем в формат TeamStats с расчетом winrate и позиции
+        const teamsWithStats: TeamStats[] = statsData.map((item: TeamStatsResponse) => {
+          const gamesPlayed = item.wins + item.losses;
+          const winrate = gamesPlayed > 0 
+            ? Math.round((item.wins / gamesPlayed) * 100) 
+            : 0;
+          
+          return {
+            id: item.id,
+            position: 0, // Будет установлено после сортировки
+            name: item.name,
+            wins: item.wins,
+            losses: item.losses,
+            draws: item.draws,
+            i: item.i,
+            cb: item.cb,
+            s: item.s,
+            winrate: winrate
+          };
+        });
+        
+        // Сортируем по winrate (от большего к меньшему)
+        teamsWithStats.sort((a, b) => {
+          if (b.winrate !== a.winrate) {
+            return b.winrate - a.winrate;
+          }
+          // Если winrate одинаковый, сортируем по CB (Бухгольцу)
+          if (b.cb !== a.cb) {
+            return b.cb - a.cb;
+          }
+          // Если и CB одинаковый, сортируем по очкам (s)
+          return b.s - a.s;
+        });
+        
+        // Устанавливаем позиции
+        teamsWithStats.forEach((team, index) => {
+          team.position = index + 1;
+        });
+        
+        setData({ teams: teamsWithStats });
+        setLoading(false);
       } catch (err) {
+        console.error('Ошибка загрузки данных:', err);
         setError('Ошибка загрузки данных');
         setLoading(false);
       }

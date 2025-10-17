@@ -24,7 +24,7 @@ async function getCollectionRows() {
   // Тело запроса
   const requestBody = {
     search: "",                           // Текстовый поиск
-    limit: 100,                             // 0 = получить все записи
+    limit: 1,                             // 0 = получить все записи
     page: 0,                              // Номер страницы
     orderBy: "",                          // Поле для сортировки
     sort: [],                             // Правила сортировки
@@ -32,7 +32,7 @@ async function getCollectionRows() {
       $or: [],                            // ИЛИ условия
       $and: []                            // И условия
     },
-    hasOptimiseResponse: false,            // Оптимизация ответа
+    hasOptimiseResponse: true,            // Оптимизация ответа
     useHumanReadableNames: true           // Читаемые имена полей
   };
   

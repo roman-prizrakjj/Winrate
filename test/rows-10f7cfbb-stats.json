@@ -1,0 +1,27 @@
+{
+  "collectionId": "10f7cfbb-bbb7-4936-b297-1ba90d80032a",
+  "timestamp": "2025-10-17T01:00:36.359Z",
+  "recordCount": 1,
+  "requestParams": {
+    "search": "",
+    "limit": 1,
+    "page": 0,
+    "orderBy": "",
+    "sort": [],
+    "query": {
+      "$or": [],
+      "$and": []
+    },
+    "hasOptimiseResponse": true,
+    "useHumanReadableNames": true
+  },
+  "responseStructure": [
+    "success",
+    "code",
+    "data",
+    "count",
+    "pages",
+    "query",
+    "pipeline"
+  ]
+}
