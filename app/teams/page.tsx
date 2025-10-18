@@ -1,28 +1,25 @@
 import Header from '@/components/Header';
 import TeamsPageClient from './TeamsPageClient';
 import { adaptTeams } from '@/lib/adapters/teams';
-import type { TeamsResponse } from '@/lib/types/teams';
+import { getAllTeamsWithPlayers } from '@/lib/services/teams';
+
+// ISR: кеш на 10 минут (600 секунд)
+export const revalidate = 600;
 
 /**
- * Загрузка команд из API с кешированием
+ * Загрузка команд через SDK напрямую (без API route)
  */
 async function getTeams() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/teams`, {
-      next: { revalidate: 600 }, // ISR: кеш на 10 минут
-    });
-
-    if (!response.ok) {
-      console.error('[Teams Page] Ошибка загрузки:', response.statusText);
-      return [];
-    }
-
-    const data: TeamsResponse = await response.json();
-    console.log(`[Teams Page] Загружено команд: ${data.teams.length}`);
+    console.log('[Teams Page] Загрузка команд через SDK...');
+    
+    // Прямой вызов SDK сервиса
+    const teams = await getAllTeamsWithPlayers();
+    
+    console.log(`[Teams Page] Загружено команд: ${teams.length}`);
     
     // Преобразуем SDK данные в формат компонентов
-    return adaptTeams(data.teams);
+    return adaptTeams(teams);
   } catch (error) {
     console.error('[Teams Page] Ошибка:', error);
     return [];
@@ -30,8 +27,13 @@ async function getTeams() {
 }
 
 export default async function TeamsPage() {
+  console.log(`[${new Date().toISOString()}] [Teams ISR] Регенерация страницы...`);
+  
   // Загружаем команды на сервере
   const allTeams = await getTeams();
+
+  // Debug: логируем количество команд
+  console.log(`[Teams Page Server] Отрисовка с ${allTeams.length} командами`);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8">

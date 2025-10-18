@@ -159,35 +159,78 @@ export default function TeamCard({ team }: TeamCardProps) {
               <h3 className="text-white font-medium text-[16px] mb-3">
                 Игроки ({team.players.length})
               </h3>
-              {team.players.map((player, index) => (
-                <div 
-                  key={index} 
-                  className="
-                    flex items-center justify-between
-                    p-3 bg-[#1a1f2e] rounded-[8px]
-                    hover:bg-[#232833] transition-colors duration-200
-                  "
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="
-                      w-8 h-8 bg-[#2581FF] rounded-full
-                      flex items-center justify-center
-                      text-white font-bold text-[12px]
-                    ">
-                      {index + 1}
+              {team.players
+                .sort((a, b) => {
+                  // Сортировка: Капитан → Игрок → Запасной
+                  const roleOrder: Record<string, number> = {
+                    'Капитан': 1,
+                    'Игрок': 2,
+                    'Запасной': 3,
+                  };
+                  return (roleOrder[a.role || ''] || 999) - (roleOrder[b.role || ''] || 999);
+                })
+                .map((player, index) => {
+                  // Определяем цвет бейджа в зависимости от роли
+                  const getRoleBadgeStyle = (role: string | undefined) => {
+                    switch (role) {
+                      case 'Капитан':
+                        return 'bg-yellow-500/20 border border-yellow-500/40 text-yellow-400';
+                      case 'Игрок':
+                        return 'bg-blue-500/20 border border-blue-500/40 text-blue-400';
+                      case 'Запасной':
+                        return 'bg-gray-500/20 border border-gray-500/40 text-gray-400';
+                      default:
+                        return 'bg-gray-500/20 border border-gray-500/40 text-gray-400';
+                    }
+                  };
+
+                  // Иконки для ролей
+                  const getRoleIcon = (role: string | undefined) => {
+                    switch (role) {
+                      case 'Капитан':
+                        return '👑';
+                      case 'Игрок':
+                        return '⭐';
+                      case 'Запасной':
+                        return '🔄';
+                      default:
+                        return '❓';
+                    }
+                  };
+
+                  return (
+                    <div 
+                      key={index} 
+                      className="
+                        flex items-center justify-between
+                        p-3 bg-[#1a1f2e] rounded-[8px]
+                        hover:bg-[#232833] transition-colors duration-200
+                      "
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="
+                          w-8 h-8 bg-[#2581FF] rounded-full
+                          flex items-center justify-center
+                          text-white font-bold text-[12px]
+                        ">
+                          {index + 1}
+                        </div>
+                        <span className="text-white text-[16px]">{player.name}</span>
+                      </div>
+                      {player.role && (
+                        <span className={`
+                          text-[12px] font-medium
+                          px-3 py-1 rounded-full
+                          flex items-center gap-1
+                          ${getRoleBadgeStyle(player.role)}
+                        `}>
+                          <span>{getRoleIcon(player.role)}</span>
+                          <span>{player.role}</span>
+                        </span>
+                      )}
                     </div>
-                    <span className="text-white text-[16px]">{player.name}</span>
-                  </div>
-                  {player.role && (
-                    <span className="
-                      text-[12px] bg-[#2581FF] text-white 
-                      px-3 py-1 rounded-full font-medium
-                    ">
-                      {player.role}
-                    </span>
-                  )}
-                </div>
-              ))}
+                  );
+                })}
             </div>
 
             {/* Кнопка закрытия */}

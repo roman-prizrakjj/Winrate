@@ -103,10 +103,15 @@ async function getAllParticipants(client: EmdCloud): Promise<any[]> {
 /**
  * Преобразование данных команды
  */
-function transformTeam(team: any): Partial<Team> {
+function transformTeam(team: any): Partial<Team> & { participantIds: string[] } {
   const division = team.data?.division?.data;
   const educationalOrg = team.data?.educational_organization?.data;
   const discipline = team.data?.discipline?.data;
+  
+  // Извлекаем ID участников из массива teams_participants
+  const participantIds = (team.data?.teams_participants || [])
+    .map((p: any) => p._id || p)
+    .filter(Boolean);
 
   return {
     id: team._id,
@@ -117,6 +122,7 @@ function transformTeam(team: any): Partial<Team> {
     divisionId: division?._id || null,
     playersCount: 0,
     players: [],
+    participantIds, // Добавляем ID участников
   };
 }
 
@@ -124,16 +130,18 @@ function transformTeam(team: any): Partial<Team> {
  * Преобразование данных участника
  */
 function transformParticipant(participant: any): Player {
-  const role = participant.data?.role?.data;
-  const user = participant.data?.user?.data;
+  // Структура как в тестовом скрипте
+  const user = participant.user || {};
+  const customFields = user.customFields || {};
+  const roleId = participant.data?.role || null;
 
   return {
     id: participant._id,
-    userId: user?._id || 'unknown',
-    nickname: user?.customFields?.nickname || user?.email || 'Без имени',
-    telegram: user?.customFields?.telegram || null,
-    role: ROLE_MAPPING[role?._id] || 'unknown',
-    roleId: role?._id || 'unknown',
+    userId: user._id || 'unknown',
+    nickname: customFields.nickname || 'Без ника',
+    telegram: customFields.telegram_id || null,
+    role: ROLE_MAPPING[roleId] || 'unknown',
+    roleId: roleId || 'unknown',
   };
 }
 
@@ -141,30 +149,43 @@ function transformParticipant(participant: any): Player {
  * Объединение команд с участниками
  */
 function mergeTeamsWithPlayers(teams: any[], participants: any[]): Team[] {
-  // Создаем Map для быстрого поиска участников по team_id
-  const participantsByTeam = new Map<string, Player[]>();
-
+  console.log('[SDK Service] Создание индекса участников...');
+  
+  // Создаем Map для быстрого поиска участников по ID (как в тестовом скрипте)
+  const participantsMap = new Map<string, any>();
   participants.forEach((participant) => {
-    const teamId = participant.data?.team?.data?._id;
-    if (!teamId) return;
-
-    if (!participantsByTeam.has(teamId)) {
-      participantsByTeam.set(teamId, []);
-    }
-    participantsByTeam.get(teamId)!.push(transformParticipant(participant));
+    participantsMap.set(participant._id, participant);
   });
+  
+  console.log(`[SDK Service] Индекс участников создан: ${participantsMap.size} записей`);
 
-  // Объединяем команды с участниками
-  return teams.map((team) => {
+  // Объединяем команды с участниками (как в тестовом скрипте)
+  const result = teams.map((team) => {
     const transformed = transformTeam(team);
-    const players = participantsByTeam.get(team._id) || [];
+    
+    // Находим участников по ID из массива participantIds команды
+    const players = transformed.participantIds
+      ?.map(id => participantsMap.get(id))
+      .filter(Boolean)
+      .map(transformParticipant) || [];
 
     return {
-      ...transformed,
+      id: transformed.id,
+      name: transformed.name,
+      school: transformed.school,
+      discipline: transformed.discipline,
+      division: transformed.division,
+      divisionId: transformed.divisionId,
       playersCount: players.length,
       players,
     } as Team;
   });
+
+  // Статистика по командам с игроками
+  const teamsWithPlayers = result.filter(t => t.players.length > 0);
+  console.log(`[SDK Service] Команд с игроками: ${teamsWithPlayers.length}/${result.length}`);
+
+  return result;
 }
 
 /**
