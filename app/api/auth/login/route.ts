@@ -111,9 +111,10 @@ export async function POST(request: Request) {
       user: {
         id: user.id || user._id,
         email: user.email || user.login,
-        firstName: user.firstName || user.first_name,
-        lastName: user.lastName || user.last_name,
-        role: user.role || 'user'
+        firstName: user.firstName || user.first_name || '',
+        lastName: user.lastName || user.last_name || '',
+        nickname: user.customFields?.nickname || '',
+        role: user.customFields?.role || user.role || 'player'
       }
     });
 

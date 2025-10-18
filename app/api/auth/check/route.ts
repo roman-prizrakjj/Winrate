@@ -72,9 +72,10 @@ export async function GET() {
       user: {
         id: payload.userId || payload.sub || payload.id,
         email: payload.email || payload.login,
-        firstName: payload.firstName || payload.first_name,
-        lastName: payload.lastName || payload.last_name,
-        role: payload.role || 'user'
+        firstName: payload.firstName || payload.first_name || '',
+        lastName: payload.lastName || payload.last_name || '',
+        nickname: payload.nickname || payload.customFields?.nickname || '',
+        role: payload.customFields?.role || payload.role || 'player'
       }
     });
 

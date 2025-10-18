@@ -11,9 +11,9 @@ export default function Header({ activeTab }: HeaderProps) {
   const { user, logout } = useAuth();
   
   const tabs = [
-    { id: "tab1", label: "Что-то там 1", href: "/dashboard-1" },
-    { id: "tab2", label: "Что-то там 2", href: "/dashboard-2" },
     { id: "tab3", label: "Команды", href: "/dashboard-3" },
+    { id: "tab1", label: "Турниры", href: "/dashboard-1" },
+    { id: "tab2", label: "Лидерборд", href: "/dashboard-2" },
   ];
 
   return (
@@ -56,11 +56,11 @@ export default function Header({ activeTab }: HeaderProps) {
             <div className="text-white font-medium text-sm">
               {user?.firstName && user?.lastName 
                 ? `${user.firstName} ${user.lastName}`
-                : user?.email || 'Пользователь'
+                : user?.nickname || user?.email || 'Пользователь'
               }
             </div>
-            <div className="text-gray-400 text-xs">
-              {user?.role || 'user'}
+            <div className="text-gray-400 text-xs capitalize">
+              {user?.role || 'player'}
             </div>
           </div>
 
