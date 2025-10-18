@@ -12,7 +12,7 @@ interface DashboardData {
   matches: Match[];
 }
 
-export default function Dashboard1() {
+export default function TournamentsPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [filteredMatches, setFilteredMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
@@ -136,7 +136,8 @@ export default function Dashboard1() {
       <div className="max-w-6xl mx-auto">
         {/* Заголовок с навигацией */}
         <div className="mb-8">
-          <Header activeTab="tab1" />
+                {/* Header */}
+      <Header activeTab="tournaments" />
         </div>
 
         {loading && (

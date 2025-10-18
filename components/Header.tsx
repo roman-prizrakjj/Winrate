@@ -11,9 +11,9 @@ export default function Header({ activeTab }: HeaderProps) {
   const { user, logout } = useAuth();
   
   const tabs = [
-    { id: "tab3", label: "Команды", href: "/dashboard-3" },
-    { id: "tab1", label: "Турниры", href: "/dashboard-1" },
-    { id: "tab2", label: "Лидерборд", href: "/dashboard-2" },
+    { id: "teams", label: "Команды", href: "/teams" },
+    { id: "tournaments", label: "Турниры", href: "/tournaments" },
+    { id: "leaderboard", label: "Лидерборд", href: "/leaderboard" },
   ];
 
   return (

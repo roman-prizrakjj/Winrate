@@ -7,7 +7,7 @@ import TeamList from '@/components/TeamList';
 import { generateTeamsWithPlayers } from '@/lib/mockData';
 import { isTeamComplete, disciplines, getTeamStatus } from '@/lib/disciplines';
 
-export default function Dashboard3() {
+export default function TeamsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showFullTeamsOnly, setShowFullTeamsOnly] = useState(false);
   const [selectedDiscipline, setSelectedDiscipline] = useState<string>('all');
@@ -49,7 +49,7 @@ export default function Dashboard3() {
       <div className="max-w-6xl mx-auto">
         {/* Заголовок с навигацией */}
         <div className="mb-8">
-          <Header activeTab="tab3" />
+          <Header activeTab="teams" />
         </div>
         
         {/* Контент */}

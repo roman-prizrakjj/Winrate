@@ -9,7 +9,7 @@ interface DashboardData {
   teams: TeamStats[];
 }
 
-export default function Dashboard2() {
+export default function LeaderboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -81,7 +81,7 @@ export default function Dashboard2() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <Header activeTab="tab2" />
+          <Header activeTab="leaderboard" />
         </div>
 
         {loading && (
