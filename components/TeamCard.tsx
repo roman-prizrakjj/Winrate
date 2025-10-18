@@ -57,89 +57,63 @@ export default function TeamCard({ team }: TeamCardProps) {
     <>
       <div className="
         flex flex-col justify-center items-center
-        p-4 gap-3 isolate
-        w-full max-w-[800px] h-auto min-h-[112px]
+        p-4 gap-2 isolate
+        w-full max-w-[800px] h-auto min-h-[80px]
         bg-[#3A4153] border border-[#4A5568] rounded-[10px]
         relative mx-auto shadow-lg
       ">
-        {/* Основная информация о команде */}
-        <div className="
-          flex items-center justify-between
-          w-full px-4 gap-6
-          z-0
-        ">
-          {/* Левая часть - название команды и университет */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="
-                text-white text-[16px] font-bold
-                bg-gradient-to-r from-blue-600/30 to-purple-600/30 
-                border border-blue-400/40 px-3 py-2 rounded-[8px]
-                whitespace-nowrap shadow-lg
-              ">
-                🏆 {team.name}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="
-                text-gray-300 text-[12px] font-medium
-                bg-gray-600/20 border border-gray-500/30 px-2 py-1 rounded-[4px]
-                whitespace-nowrap
-              ">
-                🏫 {team.school}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="
-                text-blue-400 text-[12px] font-medium
-                bg-blue-500/10 border border-blue-500/30 px-2 py-1 rounded-[4px]
-                whitespace-nowrap
-              ">
-                🎮 {team.discipline}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="
-                text-green-400 text-[12px] font-medium
-                bg-green-500/10 border border-green-500/30 px-2 py-1 rounded-[4px]
-                whitespace-nowrap
-              ">
-                👥 Состав: {team.players.length} из {requirementText}
-              </span>
-            </div>
-          </div>
-          
-          {/* Центральная часть - статистика */}
-          <div className="flex items-center gap-6 text-[14px] flex-shrink-0">
-            <span className="text-green-400">
-              Побед: <strong>{team.wins}</strong>
+        {/* Первая строка - основная информация и кнопка */}
+        <div className="flex items-center justify-between w-full gap-4">
+          {/* Левая часть - название, университет, дисциплина */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="
+              text-white text-[14px] font-bold
+              bg-gradient-to-r from-blue-600/30 to-purple-600/30 
+              border border-blue-400/40 px-3 py-1.5 rounded-[6px]
+              whitespace-nowrap shadow-lg
+            ">
+              🏆 {team.name}
             </span>
-            <span className="text-red-400">
-              Поражений: <strong>{team.losses}</strong>
+            <span className="
+              text-gray-300 text-[12px] font-medium
+              bg-gray-600/20 border border-gray-500/30 px-2 py-1 rounded-[4px]
+              whitespace-nowrap
+            ">
+              🏫 {team.school}
             </span>
-            <span className="text-blue-400">
-              Винрейт: <strong>{team.winrate}%</strong>
-            </span>
-            <span className="text-purple-400">
-              S: <strong>{team.s}</strong>
+            <span className="
+              text-blue-400 text-[12px] font-medium
+              bg-blue-500/10 border border-blue-500/30 px-2 py-1 rounded-[4px]
+              whitespace-nowrap
+            ">
+              🎮 {team.discipline}
             </span>
           </div>
           
           {/* Правая часть - кнопка состава */}
-          <div className="flex-shrink-0">
-            <button
-              onClick={openModal}
-              className={`
-                flex justify-center items-center
-                px-4 py-2 gap-2
-                ${getButtonStyle()} rounded-[8px]
-                text-white font-medium text-[14px]
-                transition-colors duration-200
-              `}
-            >
-              {getButtonText()}
-            </button>
-          </div>
+          <button
+            onClick={openModal}
+            className={`
+              flex justify-center items-center
+              px-4 py-2 gap-2 flex-shrink-0
+              ${getButtonStyle()} rounded-[8px]
+              text-white font-medium text-[14px]
+              transition-colors duration-200
+            `}
+          >
+            {getButtonText()}
+          </button>
+        </div>
+
+        {/* Вторая строка - информация о составе */}
+        <div className="flex items-center w-full">
+          <span className="
+            text-green-400 text-[12px] font-medium
+            bg-green-500/10 border border-green-500/30 px-2 py-1 rounded-[4px]
+            whitespace-nowrap
+          ">
+            👥 Состав: {team.players.length} из {requirementText}
+          </span>
         </div>
       </div>
 
