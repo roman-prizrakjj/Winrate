@@ -6,8 +6,8 @@ const fs = require('fs');
 const path = require('path');
 
 async function testDatabaseConnection() {
-  const apiToken = process.env.MONGODB_API_TOKEN;
-  const appId = process.env.MONGODB_APP_ID;
+  const apiToken = process.env.EMD_API_TOKEN;
+  const appId = process.env.EMD_APP_ID;
   
   if (!apiToken || !appId) {
     console.error('❌ Ошибка: API токен или App ID не найдены в .env.local');

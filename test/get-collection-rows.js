@@ -6,13 +6,13 @@ const fs = require('fs');
 const path = require('path');
 
 async function getCollectionRows() {
-  const apiToken = process.env.MONGODB_API_TOKEN;
-  const appId = process.env.MONGODB_APP_ID;
+  const apiToken = process.env.EMD_API_TOKEN;
+  const appId = process.env.EMD_APP_ID;
   const collectionId = process.env.TEST_COLLECTION_ID;
   
   if (!apiToken || !appId || !collectionId) {
     console.error('❌ Ошибка: Не найдены переменные окружения');
-    console.log('Проверьте .env.local: MONGODB_API_TOKEN, MONGODB_APP_ID, TEST_COLLECTION_ID');
+    console.log('Проверьте .env.local: EMD_API_TOKEN, EMD_APP_ID, TEST_COLLECTION_ID');
     process.exit(1);
   }
 
@@ -32,7 +32,7 @@ async function getCollectionRows() {
       $or: [],                            // ИЛИ условия
       $and: []                            // И условия
     },
-    hasOptimiseResponse: true,            // Оптимизация ответа
+    hasOptimiseResponse: false,            // Оптимизация ответа
     useHumanReadableNames: true           // Читаемые имена полей
   };
   

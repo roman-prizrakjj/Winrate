@@ -1,57 +1,47 @@
-// API Route для получения списка турниров из MongoDB
+// API Route для получения списка турниров из MongoDB через EMD Cloud SDK
 // GET /api/tournaments
 
 import { NextResponse } from 'next/server';
+import { emdCloud, COLLECTIONS } from '@/lib/emd-cloud';
+
+// Отключаем кэширование Next.js для этого route (данные >2MB)
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
   try {
-    const apiToken = process.env.MONGODB_API_TOKEN;
-    const appId = process.env.MONGODB_APP_ID;
-    const collectionId = process.env.TOURNAMENTS_COLLECTION_ID;
-
-    if (!apiToken || !appId || !collectionId) {
-      console.error('❌ Отсутствуют переменные окружения');
+    // Проверяем наличие ID коллекции
+    if (!COLLECTIONS.TOURNAMENTS) {
+      console.error('❌ TOURNAMENTS_COLLECTION_ID не установлен');
       return NextResponse.json(
         { error: 'Server configuration error' },
         { status: 500 }
       );
     }
 
-    const url = `https://api.emd.one/api/${appId}/database/${collectionId}/row`;
+    console.log('🔄 Загружаем турниры через SDK...');
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'apitoken': apiToken,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        search: "",
-        limit: 100,
-        page: 0,
-        orderBy: "",
-        sort: [],
-        query: {
-          $or: [],
-          $and: []
-        },
-        hasOptimiseResponse: true,  // ✅ Включаем оптимизацию
-        useHumanReadableNames: true
-      }),
-      // Отключаем Next.js кэш из-за больших данных (>2MB)
-      cache: 'no-store'
+    // Создаем экземпляр базы данных для коллекции турниров
+    const db = emdCloud.database(COLLECTIONS.TOURNAMENTS);
+
+    // Получаем данные через SDK
+    const result = await db.getRows({
+      limit: 100,
+      page: 0,
+      useHumanReadableNames: true
     });
 
-    if (!response.ok) {
-      console.error('❌ Ошибка MongoDB API:', response.statusText);
+    // Проверяем на ошибку сервера
+    if ('error' in result) {
+      console.error('❌ Ошибка SDK:', result.error);
       return NextResponse.json(
         { error: 'Failed to fetch tournaments' },
-        { status: response.status }
+        { status: 500 }
       );
     }
 
-    const result = await response.json();
-    const rows = result?.data || result?.rows || [];
+    // Получаем массив данных
+    const rows: any[] = Array.isArray(result) ? result : ('data' in result ? (result.data as any[]) : []);
 
     console.log(`✅ Получено турниров: ${rows.length}`);
 
