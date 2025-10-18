@@ -1,10 +1,12 @@
+// lib/disciplines.ts
+// Информация о дисциплинах и требованиях по количеству игроков
 export interface DisciplineInfo {
   min: number;
   max: number;
   icon: string;
   displayName?: string;
 }
-
+// Информация о дисциплинах с требованиями по количеству игроков (без капитана)
 export const disciplines: Record<string, DisciplineInfo> = {
   "Counter-Strike 2": { min: 5, max: 7, icon: "/icons/disciplines/cs2.svg" },
   "Dota 2": { min: 5, max: 7, icon: "/icons/disciplines/dota2.svg" },
@@ -29,7 +31,7 @@ export function isTeamComplete(totalPlayers: number, discipline: string): boolea
   const playersWithoutCaptain = Math.max(0, totalPlayers - 1);
   return playersWithoutCaptain >= disciplineInfo.min;
 }
-
+// Проверяет, полная ли команда (равна максимуму)
 export function isTeamFull(totalPlayers: number, discipline: string): boolean {
   const disciplineInfo = disciplines[discipline];
   if (!disciplineInfo) return false;
@@ -37,7 +39,7 @@ export function isTeamFull(totalPlayers: number, discipline: string): boolean {
   const playersWithoutCaptain = Math.max(0, totalPlayers - 1);
   return playersWithoutCaptain === disciplineInfo.max;
 }
-
+// Получает статус команды: 'incomplete' | 'complete' | 'full' | 'overstaffed'
 export function getTeamStatus(totalPlayers: number, discipline: string): 'incomplete' | 'complete' | 'full' | 'overstaffed' {
   const disciplineInfo = disciplines[discipline];
   if (!disciplineInfo) return 'incomplete';
@@ -50,7 +52,7 @@ export function getTeamStatus(totalPlayers: number, discipline: string): 'incomp
   if (playersWithoutCaptain > disciplineInfo.max) return 'overstaffed';
   return 'complete';
 }
-
+// Утилита для получения текстового требования по дисциплине
 export function getDisciplineRequirement(discipline: string): string {
   const disciplineInfo = disciplines[discipline];
   if (!disciplineInfo) return '?/?';
