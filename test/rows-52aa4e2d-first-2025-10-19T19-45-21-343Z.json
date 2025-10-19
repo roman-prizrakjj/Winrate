@@ -1,0 +1,54 @@
+[
+  {
+    "_id": "68f3cb5ae7c854b803741fe6",
+    "updatedAt": "2025-10-18T17:18:07.943Z",
+    "createdAt": "2025-10-18T17:16:10.518Z",
+    "data": {
+      "col_e2c5584fde": {
+        "_id": "68f3caf3e7c854b803741fc4",
+        "data": {
+          "col_edf500ac9f": "ТЕСТ супер новый турнир"
+        }
+      },
+      "col_7ef90ab5ee": "первый этап",
+      "col_9d5ca1d664": "250614e6-1142-4604-b950-fd81c7a66497",
+      "col_00b85a3840": {
+        "_id": "68f3cbcfbaa841391b506fbd",
+        "data": {
+          "col_a0023ff3ed": "1 тур 1 этапа"
+        }
+      },
+      "col_04f88e07b9": "d1bf2988-fba3-4cd5-b3e7-0a5bcdf22a23",
+      "col_a9048c1624": [
+        {
+          "_id": "68f3cbcfbaa841391b506fbd",
+          "data": {
+            "col_a0023ff3ed": "1 тур 1 этапа"
+          }
+        }
+      ],
+      "col_da148c8009": [],
+      "col_c4660c0e50": 1
+    },
+    "user": {
+      "createdAt": "2024-12-03T20:12:09.380Z",
+      "space": "root",
+      "login": "nullus@yandex.ru",
+      "accountVerified": false,
+      "accountStatus": "approved",
+      "external": false,
+      "firstName": "Vania",
+      "lastName": "Voznyak",
+      "patronymicName": null,
+      "avatarUrl": null,
+      "level": 0,
+      "points": 0,
+      "ping": null,
+      "_id": "526c54da-1eeb-450a-9efd-79e1a6a83cfe",
+      "linkedAccounts": {},
+      "customFields": {},
+      "lastActivityInMinutes": null,
+      "pingStatus": "offline"
+    }
+  }
+]

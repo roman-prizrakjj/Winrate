@@ -14,7 +14,7 @@
 
 - **[SDK-GUIDE.md](./SDK-GUIDE.md)** - полное руководство по EMD Cloud SDK (27 методов)
 - **[API-INTEGRATION.md](./API-INTEGRATION.md)** - интеграция с EMD Cloud API
-- **[docs/hardcoded-references.md](./docs/hardcoded-references.md)** - справочники (статусы, дивизионы, дисциплины)
+- **[docs/hardcoded-references.md](./docs/hardcoded-references.md)** - справочники (статусы турниров/этапов, механики, дивизионы, дисциплины)
 
 ## 🔐 Авторизация
 
@@ -56,29 +56,15 @@
 - 📊 Процент побед (winrate)
 - ⚡ ISR кэширование
 
-### ➕ Создание турниров (`/create`)
-- 📝 **Модальная форма** - создание турниров через Server Actions
-- � **Валидация** - проверка обязательных полей (название, статус)
-- 📋 **Справочники** - статусы, дивизионы, дисциплины (захардкожены)
+### ➕ Создание (`/create`)
+- 🏆 **Создание турниров** - модальная форма через Server Actions
+- 📊 **Создание этапов** - привязка к турниру, механика (Швейцарская/Single/Double)
+- 🎯 **Валидация** - проверка обязательных полей
+- 📋 **Справочники** - статусы, дивизионы, дисциплины, механики (захардкожены)
+- 🔄 **Динамическая загрузка** - список турниров для выбора этапа
 - ✅ **Успешное создание** - автозакрытие через 2 секунды
-- 🔧 **Тестирование** - скрипт `test/turnament/create-tournament.js`
 
-### 🎮 Турниры (`/tournaments`)
-- �📋 Список предстоящих матчей с бейджами команд
-- � Иконки дисциплин (CS2, Dota 2, Valorant, Fortnite и др.)
-- 🔍 Поиск по командам
-- 🎯 Фильтрация по дисциплинам и турнирам
-- ✏️ Редактирование матчей через модальное окно
-- 🏟️ Турнирные бейджи
-
-### 📊 Лидерборд (`/leaderboard`)
-- � Таблица команд с рейтингом
-- 🏅 Позиции, победы, поражения, ничьи
-- � Процент побед (winrate)
-- 👆 Интерактивные строки
-- 🔄 Данные из EMD Cloud в реальном времени
-
-## �📁 Структура проекта
+## 📁 Структура проекта
 
 ```
 winrate/
@@ -91,16 +77,19 @@ winrate/
 │   │   └── 📄 TeamsPageClient.tsx  # Client Component (фильтры)
 │   ├── 📁 tournaments/         # 🎮 Турниры и матчи
 │   ├── 📁 leaderboard/         # 📊 Рейтинг команд (ISR)
-│   ├── � create/              # ➕ Создание турниров
+│   ├── 📁 create/              # ➕ Создание турниров и этапов
 │   ├── 📁 actions/             # Server Actions
-│   │   └── 📄 tournament.ts    # Создание турниров
+│   │   ├── 📄 tournament.ts    # Создание турниров
+│   │   └── 📄 stage.ts         # Создание этапов
 │   └── 📁 api/                 # API Routes
 │       ├── 📁 auth/            # Авторизация (login/check/logout)
+│       ├── 📁 tournaments-list/ # Список турниров для селекта
 │       └── 📁 tournaments/     # Турниры (устаревшее)
 ├── 📁 components/              # React компоненты
 │   ├── 📄 Header.tsx           # Навигация + инфо о пользователе
 │   ├── 📄 LoginModal.tsx       # Модальное окно входа
 │   ├── 📄 CreateTournamentModal.tsx  # Создание турниров
+│   ├── 📄 CreateStageModal.tsx # Создание этапов
 │   ├── 📄 TeamCard.tsx         # Карточка команды с модалкой игроков
 │   └── ...                     # Другие компоненты
 ├── 📁 contexts/                # React Context
@@ -108,15 +97,20 @@ winrate/
 ├── 📁 lib/                     # Утилиты и API
 │   ├── 📄 emd-cloud.ts         # Инициализация EMD Cloud SDK
 │   ├── 📄 statuses.ts          # Статусы турниров (захардкожены)
+│   ├── 📄 stage-statuses.ts    # Статусы этапов (захардкожены)
+│   ├── 📄 stage-mechanics.ts   # Механики этапов (захардкожены)
 │   ├── 📄 divisions.ts         # Дивизионы (захардкожены)
 │   ├── 📄 disciplines.ts       # Дисциплины и валидация (захардкожены)
-│   ├── 📄 tournament-fields.ts # Маппинг полей (читаемые ↔ col_xxx)
+│   ├── 📄 tournament-fields.ts # Маппинг полей турниров (читаемые ↔ col_xxx)
+│   ├── 📄 stage-fields.ts      # Маппинг полей этапов (читаемые ↔ col_xxx)
 │   ├── 📁 types/               # TypeScript типы
 │   │   ├── 📄 teams.ts         # Team, Player, TeamsResponse
-│   │   └── 📄 tournament.ts    # TournamentFormData, TournamentCreatePayload
+│   │   ├── 📄 tournament.ts    # TournamentFormData, TournamentCreatePayload
+│   │   └── 📄 stage.ts         # StageFormData, StageCreatePayload
 │   ├── 📁 utils/               # Утилиты
 │   │   ├── 📄 teams.ts         # Фильтрация, статусы команд
-│   │   └── 📄 tournament-helpers.ts  # Валидация, маппинг форм
+│   │   ├── 📄 tournament-helpers.ts  # Валидация, маппинг турниров
+│   │   └── 📄 stage-helpers.ts # Валидация, маппинг этапов
 │   ├── 📁 services/            # SDK сервисы (Server-side)
 │   │   └── 📄 teams.ts         # Загрузка команд/игроков через SDK
 │   └── 📁 adapters/            # Адаптеры данных
@@ -124,9 +118,14 @@ winrate/
 ├── 📁 docs/                    # Документация
 │   └── 📄 hardcoded-references.md  # Отчет о захардкоженных справочниках
 ├── 📁 test/                    # Тестовые скрипты
-│   └── 📁 turnament/           # Тесты создания турниров
-│       ├── 📄 create-tournament.js  # Скрипт создания через SDK
-│       └── 📄 info.md          # Справка по статусам
+│   ├── 📁 turnament/           # Тесты создания турниров
+│   │   ├── 📄 create-tournament.js  # Скрипт создания через SDK
+│   │   └── 📄 info.md          # Справка по статусам
+│   └── 📁 stage_tur/           # Тесты создания этапов
+│       ├── 📄 create-stage.js  # Скрипт создания через SDK
+│       ├── 📄 info.md          # Справка по полям
+│       ├── 📄 status.md        # Статусы этапов
+│       └── 📄 mechanic.md      # Механики этапов
 ├── 📄 .env.local               # Переменные окружения (НЕ коммитить!)
 ├── 📄 README.md                # Документация проекта
 ├── 📄 SDK-GUIDE.md             # Полное руководство по SDK
@@ -227,6 +226,10 @@ npm run dev
 
 ### ⚙️ Server Actions (рекомендуемый подход):
 - `createTournament()` → создание турниров через `app/actions/tournament.ts`
+- `createStage()` → создание этапов через `app/actions/stage.ts`
+
+### 🔄 Динамические API:
+- `GET /api/tournaments-list` → список турниров для селекта этапов
 
 ### 📦 Устаревшие API (постепенно заменяются):
 - `GET /api/tournaments` → используется на `/tournaments` (мигрирует на Server Components)

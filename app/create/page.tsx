@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import Header from '@/components/Header';
 import CreateTournamentModal from '@/components/CreateTournamentModal';
+import CreateStageModal from '@/components/CreateStageModal';
 
 export default function CreatePage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isTournamentModalOpen, setIsTournamentModalOpen] = useState(false);
+  const [isStageModalOpen, setIsStageModalOpen] = useState(false);
 
   const cards = [
     {
@@ -13,16 +15,16 @@ export default function CreatePage() {
       icon: '🏆',
       title: 'Создать турнир',
       description: 'Создание нового турнира с настройками',
-      onClick: () => setIsModalOpen(true),
+      onClick: () => setIsTournamentModalOpen(true),
       enabled: true,
     },
     {
       id: 'stages',
       icon: '📊',
-      title: 'Создать этапы турнира',
-      description: 'Добавление этапов к существующему турниру',
-      onClick: () => {},
-      enabled: false,
+      title: 'Создать этап турнира',
+      description: 'Добавление этапа к существующему турниру',
+      onClick: () => setIsStageModalOpen(true),
+      enabled: true,
     },
     {
       id: 'tour',
@@ -87,8 +89,14 @@ export default function CreatePage() {
 
       {/* Модалка создания турнира */}
       <CreateTournamentModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+        isOpen={isTournamentModalOpen} 
+        onClose={() => setIsTournamentModalOpen(false)} 
+      />
+
+      {/* Модалка создания этапа */}
+      <CreateStageModal 
+        isOpen={isStageModalOpen} 
+        onClose={() => setIsStageModalOpen(false)} 
       />
     </div>
   );
