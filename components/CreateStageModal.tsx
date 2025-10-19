@@ -33,7 +33,9 @@ export default function CreateStageModal({ isOpen, onClose }: CreateStageModalPr
     setTournamentsError(null);
     
     try {
-      const response = await fetch('/api/tournaments-list');
+      const response = await fetch('/api/tournaments-list', {
+        cache: 'no-store' // Всегда загружаем свежие данные
+      });
       if (!response.ok) {
         throw new Error('Не удалось загрузить турниры');
       }
