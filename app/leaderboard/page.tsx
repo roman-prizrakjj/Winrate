@@ -3,8 +3,8 @@ import LeaderboardClient from "./LeaderboardClient";
 import { TeamStats } from "@/components/TeamStatsTable";
 import { emdCloud, COLLECTIONS } from '@/lib/emd-cloud';
 
-// ISR: кеш на 10 минут (600 секунд)
-export const revalidate = 600;
+// ISR: кеш на время из .env (по умолчанию 10 минут)
+export const revalidate = parseInt(process.env.REVALIDATE_TIME || '600', 10);
 
 interface TeamStatsResponse {
   id: string;
@@ -62,9 +62,9 @@ async function getLeaderboardData(): Promise<TeamStats[]> {
     // Преобразуем данные
     const teamsWithStats: TeamStats[] = allRows.map((row: any) => {
       const data = row.data || {};
-      const wins = data.wins || 0;
-      const losses = data.losses || 0;
-      const draws = data.draws || 0;
+      const wins = data.win || 0;
+      const losses = data.loss || 0;
+      const draws = 0; // Нет в структуре данных
       const gamesPlayed = wins + losses;
       const winrate = gamesPlayed > 0 
         ? Math.round((wins / gamesPlayed) * 100) 
@@ -73,13 +73,13 @@ async function getLeaderboardData(): Promise<TeamStats[]> {
       return {
         id: row._id,
         position: 0, // Установим после сортировки
-        name: data.name || 'Неизвестная команда',
+        name: data.team?.data?.name || 'Неизвестная команда',
         wins,
         losses,
         draws,
-        i: data.i || 0,
-        cb: data.cb || 0,
-        s: data.s || 0,
+        i: 0, // Нет в структуре данных
+        cb: data.buchholz || 0,
+        s: data.score || 0,
         winrate
       };
     });

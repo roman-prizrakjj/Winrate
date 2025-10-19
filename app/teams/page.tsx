@@ -3,8 +3,8 @@ import TeamsPageClient from './TeamsPageClient';
 import { adaptTeams } from '@/lib/adapters/teams';
 import { getAllTeamsWithPlayers } from '@/lib/services/teams';
 
-// ISR: кеш на 10 минут (600 секунд)
-export const revalidate = 600;
+// ISR: кеш на время из .env (по умолчанию 10 минут)
+export const revalidate = parseInt(process.env.REVALIDATE_TIME || '600', 10);
 
 /**
  * Загрузка команд через SDK напрямую (без API route)
