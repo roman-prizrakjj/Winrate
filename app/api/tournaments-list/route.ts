@@ -4,6 +4,10 @@
 import { NextResponse } from 'next/server';
 import { emdCloud } from '@/lib/emd-cloud';
 
+// Отключаем кэширование Next.js для этого route
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const tournamentsCollectionId = process.env.TOURNAMENTS_COLLECTION_ID;
@@ -34,7 +38,11 @@ export async function GET() {
       title: row.data?.title || 'Без названия'
     }));
 
-    return NextResponse.json(tournaments);
+    return NextResponse.json(tournaments, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
+      }
+    });
 
   } catch (error) {
     console.error('Ошибка при загрузке турниров:', error);
