@@ -1,0 +1,99 @@
+[
+  {
+    "_id": "68f3cbcfbaa841391b506fbd",
+    "updatedAt": "2025-10-18T17:18:07.755Z",
+    "createdAt": "2025-10-18T17:18:07.755Z",
+    "data": {
+      "tournament": {
+        "_id": "68f3caf3e7c854b803741fc4",
+        "updatedAt": "2025-10-18T17:18:07.814Z",
+        "createdAt": "2025-10-18T17:14:27.544Z",
+        "data": {
+          "title": "ТЕСТ супер новый турнир",
+          "status": "43a217ee-ab5e-4fdd-bb45-7549ac9a645c",
+          "parent_id": null,
+          "has_fastcup": false,
+          "tours": [
+            "68f3cbcfbaa841391b506fbd"
+          ],
+          "matches": [],
+          "results": [],
+          "educational_organization": null,
+          "stages": [
+            "68f3cb5ae7c854b803741fe6"
+          ],
+          "tournaments_teams_stages": [],
+          "tournaments_teams": [],
+          "description": "<p>описание турнира</p>",
+          "discipline": "68d57160fffb6787b015ebff",
+          "showOnPlatform": false,
+          "rules": "<p>правила </p>",
+          "division": "68d6a89391c0a0c6c2d14d91"
+        },
+        "user": "526c54da-1eeb-450a-9efd-79e1a6a83cfe"
+      },
+      "title": "1 тур 1 этапа",
+      "matches": [],
+      "current_stage": {
+        "_id": "68f3cb5ae7c854b803741fe6",
+        "updatedAt": "2025-10-18T17:18:07.943Z",
+        "createdAt": "2025-10-18T17:16:10.518Z",
+        "data": {
+          "tournament": "68f3caf3e7c854b803741fc4",
+          "title": "первый этап",
+          "mechanic": "250614e6-1142-4604-b950-fd81c7a66497",
+          "current_tour": "68f3cbcfbaa841391b506fbd",
+          "status": "d1bf2988-fba3-4cd5-b3e7-0a5bcdf22a23",
+          "tours": [
+            "68f3cbcfbaa841391b506fbd"
+          ],
+          "tournaments_teams_stages": [],
+          "order": 1
+        },
+        "user": "526c54da-1eeb-450a-9efd-79e1a6a83cfe"
+      },
+      "results": [],
+      "order": 1,
+      "stage": {
+        "_id": "68f3cb5ae7c854b803741fe6",
+        "updatedAt": "2025-10-18T17:18:07.943Z",
+        "createdAt": "2025-10-18T17:16:10.518Z",
+        "data": {
+          "tournament": "68f3caf3e7c854b803741fc4",
+          "title": "первый этап",
+          "mechanic": "250614e6-1142-4604-b950-fd81c7a66497",
+          "current_tour": "68f3cbcfbaa841391b506fbd",
+          "status": "d1bf2988-fba3-4cd5-b3e7-0a5bcdf22a23",
+          "tours": [
+            "68f3cbcfbaa841391b506fbd"
+          ],
+          "tournaments_teams_stages": [],
+          "order": 1
+        },
+        "user": "526c54da-1eeb-450a-9efd-79e1a6a83cfe"
+      },
+      "dateStart": "2025-10-18T17:10:00.442Z",
+      "dateEnd": "2025-10-18T17:20:00.267Z"
+    },
+    "user": {
+      "createdAt": "2024-12-03T20:12:09.380Z",
+      "space": "root",
+      "login": "nullus@yandex.ru",
+      "accountVerified": false,
+      "accountStatus": "approved",
+      "external": false,
+      "firstName": "Vania",
+      "lastName": "Voznyak",
+      "patronymicName": null,
+      "avatarUrl": null,
+      "level": 0,
+      "points": 0,
+      "ping": null,
+      "_id": "526c54da-1eeb-450a-9efd-79e1a6a83cfe",
+      "linkedAccounts": {},
+      "customFields": {},
+      "lastActivityInMinutes": null,
+      "pingStatus": "offline"
+    }
+  }
+]

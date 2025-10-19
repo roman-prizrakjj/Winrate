@@ -4,10 +4,12 @@ import { useState } from 'react';
 import Header from '@/components/Header';
 import CreateTournamentModal from '@/components/CreateTournamentModal';
 import CreateStageModal from '@/components/CreateStageModal';
+import CreateTourModal from '@/components/CreateTourModal';
 
 export default function CreatePage() {
   const [isTournamentModalOpen, setIsTournamentModalOpen] = useState(false);
   const [isStageModalOpen, setIsStageModalOpen] = useState(false);
+  const [isTourModalOpen, setIsTourModalOpen] = useState(false);
 
   const cards = [
     {
@@ -31,8 +33,8 @@ export default function CreatePage() {
       icon: '🎯',
       title: 'Создать тур',
       description: 'Создание тура внутри этапа',
-      onClick: () => {},
-      enabled: false,
+      onClick: () => setIsTourModalOpen(true),
+      enabled: true,
     },
   ];
 
@@ -97,6 +99,12 @@ export default function CreatePage() {
       <CreateStageModal 
         isOpen={isStageModalOpen} 
         onClose={() => setIsStageModalOpen(false)} 
+      />
+
+      {/* Модалка создания тура */}
+      <CreateTourModal 
+        isOpen={isTourModalOpen} 
+        onClose={() => setIsTourModalOpen(false)} 
       />
     </div>
   );
