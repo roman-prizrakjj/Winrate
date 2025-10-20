@@ -59,10 +59,15 @@
 ### ➕ Создание (`/create`)
 - 🏆 **Создание турниров** - модальная форма через Server Actions
 - 📊 **Создание этапов** - привязка к турниру, механика (Швейцарская/Single/Double)
-- 🎯 **Валидация** - проверка обязательных полей
+- 🎯 **Создание туров** - каскадные селекты (турнир → этап → тур), даты начала/окончания
+- 🔄 **Каскадная загрузка** - турниры → этапы → тур с динамической фильтрацией
 - 📋 **Справочники** - статусы, дивизионы, дисциплины, механики (захардкожены)
-- 🔄 **Динамическая загрузка** - список турниров для выбора этапа
-- ✅ **Успешное создание** - автозакрытие через 2 секунды
+- ✅ **Валидация** - обязательные поля + проверка дат (окончание > начала)
+- 🎨 **Кастомные иконки** - SVG иконки для кнопок создания
+- 📋 **Список этапов** - отображение всех этапов с фильтрами (ISR 60 сек)
+- 🔍 **Фильтрация этапов** - по турниру, статусу, поиск по названию
+- 🔄 **Кнопка обновления** - принудительное обновление списка этапов
+- ✏️ **Изменение статуса** - обновление статуса этапа через dropdown (оптимистичное обновление)
 
 ## 📁 Структура проекта
 
@@ -77,11 +82,15 @@ winrate/
 │   │   └── 📄 TeamsPageClient.tsx  # Client Component (фильтры)
 │   ├── 📁 tournaments/         # 🎮 Турниры и матчи
 │   ├── 📁 leaderboard/         # 📊 Рейтинг команд (ISR)
-│   ├── 📁 create/              # ➕ Создание турниров и этапов
-│   ├── 📁 actions/             # Server Actions
+│   ├── 📁 create/              # ➕ Создание турниров/этапов/туров
+│   │   ├── � page.tsx         # Server Component (ISR 60 сек)
+│   │   └── 📄 CreateButtonsSection.tsx  # Кнопки создания
+│   ├── �📁 actions/             # Server Actions
 │   │   ├── 📄 tournament.ts    # Создание турниров
-│   │   └── 📄 stage.ts         # Создание этапов
-│   └── 📁 api/                 # API Routes
+│   │   ├── 📄 stage.ts         # Создание этапов
+│   │   ├── 📄 tour.ts          # Создание туров
+│   │   └── � update-stage-status.ts  # Обновление статуса этапа
+│   └── �📁 api/                 # API Routes
 │       ├── 📁 auth/            # Авторизация (login/check/logout)
 │       ├── 📁 tournaments-list/ # Список турниров для селекта
 │       └── 📁 tournaments/     # Турниры (устаревшее)
@@ -90,6 +99,10 @@ winrate/
 │   ├── 📄 LoginModal.tsx       # Модальное окно входа
 │   ├── 📄 CreateTournamentModal.tsx  # Создание турниров
 │   ├── 📄 CreateStageModal.tsx # Создание этапов
+│   ├── 📄 CreateTourModal.tsx  # Создание туров (каскадные селекты)
+│   ├── 📄 StagesSection.tsx    # Список этапов с фильтрами
+│   ├── 📄 StageList.tsx        # Список карточек этапов
+│   ├── 📄 StageCard.tsx        # Карточка этапа с редактированием статуса
 │   ├── 📄 TeamCard.tsx         # Карточка команды с модалкой игроков
 │   └── ...                     # Другие компоненты
 ├── 📁 contexts/                # React Context
@@ -103,18 +116,31 @@ winrate/
 │   ├── 📄 disciplines.ts       # Дисциплины и валидация (захардкожены)
 │   ├── 📄 tournament-fields.ts # Маппинг полей турниров (читаемые ↔ col_xxx)
 │   ├── 📄 stage-fields.ts      # Маппинг полей этапов (читаемые ↔ col_xxx)
-│   ├── 📁 types/               # TypeScript типы
+│   ├── � tour-fields.ts       # Маппинг полей туров (читаемые ↔ col_xxx)
+│   ├── �📁 types/               # TypeScript типы
 │   │   ├── 📄 teams.ts         # Team, Player, TeamsResponse
 │   │   ├── 📄 tournament.ts    # TournamentFormData, TournamentCreatePayload
-│   │   └── 📄 stage.ts         # StageFormData, StageCreatePayload
+│   │   ├── 📄 stage.ts         # StageFormData, StageCreatePayload
+│   │   ├── 📄 stages.ts        # Stage (для отображения списка)
+│   │   └── 📄 tour.ts          # TourFormData, TourCreatePayload
 │   ├── 📁 utils/               # Утилиты
 │   │   ├── 📄 teams.ts         # Фильтрация, статусы команд
 │   │   ├── 📄 tournament-helpers.ts  # Валидация, маппинг турниров
-│   │   └── 📄 stage-helpers.ts # Валидация, маппинг этапов
+│   │   ├── 📄 stage-helpers.ts # Валидация, маппинг этапов
+│   │   └── 📄 tour-helpers.ts  # Валидация, маппинг туров
 │   ├── 📁 services/            # SDK сервисы (Server-side)
-│   │   └── 📄 teams.ts         # Загрузка команд/игроков через SDK
-│   └── 📁 adapters/            # Адаптеры данных
-│       └── 📄 teams.ts         # SDK → Component формат
+│   │   ├── 📄 teams.ts         # Загрузка команд/игроков через SDK
+│   │   └── � stages.ts        # Загрузка этапов через SDK
+│   └── �📁 adapters/            # Адаптеры данных
+│       ├── 📄 teams.ts         # SDK → Component формат
+│       └── 📄 stages.ts        # SDK → Component формат (этапы)
+├── 📁 public/                  # Статические файлы
+│   └── 📁 icons/               # Иконки
+│       ├── 📁 disciplines/     # SVG иконки дисциплин (CS2, Dota 2 и др.)
+│       └── 📁 create/          # SVG иконки для страницы создания
+│           ├── 📄 tournaments.svg  # Иконка турниров
+│           ├── 📄 stages.svg       # Иконка этапов
+│           └── 📄 tour.svg         # Иконка туров
 ├── 📁 docs/                    # Документация
 │   └── 📄 hardcoded-references.md  # Отчет о захардкоженных справочниках
 ├── 📁 test/                    # Тестовые скрипты
@@ -127,22 +153,13 @@ winrate/
 │       ├── 📄 status.md        # Статусы этапов
 │       └── 📄 mechanic.md      # Механики этапов
 ├── 📄 .env.local               # Переменные окружения (НЕ коммитить!)
-├── 📄 README.md                # Документация проекта
-├── 📄 SDK-GUIDE.md             # Полное руководство по SDK
-├── 📄 API-INTEGRATION.md       # Интеграция с EMD Cloud API
-└── 📄 package.json             # Зависимости
-├── 📄 .env.local               # Переменные окружения (НЕ коммитить!)
 ├── 📄 .env.example             # Шаблон переменных окружения
 ├── 📄 README.md                # Документация проекта
 ├── 📄 SDK-GUIDE.md             # Полное руководство по SDK
+├── 📄 API-INTEGRATION.md       # Интеграция с EMD Cloud API
 ├── 📄 package.json             # Зависимости
 ├── 📄 tailwind.config.ts       # Настройки Tailwind
 └── 📄 tsconfig.json            # TypeScript конфиг
-├── 📄 .env.local               # Переменные окружения (НЕ коммитить!)
-├── 📄 SDK-GUIDE.md             # Полное руководство по SDK
-├── 📄 package.json          # Зависимости
-├── 📄 tailwind.config.ts    # Настройки Tailwind
-└── 📄 tsconfig.json         # TypeScript конфиг
 ```
 
 
@@ -227,9 +244,12 @@ npm run dev
 ### ⚙️ Server Actions (рекомендуемый подход):
 - `createTournament()` → создание турниров через `app/actions/tournament.ts`
 - `createStage()` → создание этапов через `app/actions/stage.ts`
+- `createTour()` → создание туров через `app/actions/tour.ts`
+- `updateStageStatus()` → обновление статуса этапа через `app/actions/update-stage-status.ts`
 
 ### 🔄 Динамические API:
 - `GET /api/tournaments-list` → список турниров для селекта этапов
+- `GET /api/stages-list?tournamentId=xxx` → список этапов для каскадных селектов туров
 
 ### 📦 Устаревшие API (постепенно заменяются):
 - `GET /api/tournaments` → используется на `/tournaments` (мигрирует на Server Components)
@@ -260,6 +280,8 @@ REVALIDATE_TIME=600  # 10 минут по умолчанию
 # ID коллекций MongoDB (обязательно)
 TEAM_STATS_COLLECTION_ID=10f7cfbb-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 TOURNAMENTS_COLLECTION_ID=b9b00030-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+STAGES_COLLECTION_ID=52aa4e2d-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+TOURS_COLLECTION_ID=4afef67e-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 TEAMS_COLLECTION_ID=a8013391-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 TEAMS_PARTICIPANTS_COLLECTION_ID=fcf579f0-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```

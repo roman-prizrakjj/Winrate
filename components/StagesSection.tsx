@@ -39,9 +39,28 @@ export default function StagesSection({ allStages }: StagesSectionProps) {
   };
 
   // Обновление данных этапов
-  const handleRefresh = () => {
-    startTransition(() => {
-      router.refresh();
+  // Универсальное решение: работает на Vercel (через API) и на других платформах (router.refresh)
+  const handleRefresh = async () => {
+    startTransition(async () => {
+      try {
+        // Пытаемся вызвать API ревалидации (для Vercel и подобных платформ)
+        const response = await fetch('/api/revalidate-create', { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (response.ok) {
+          console.log('[Refresh] Ревалидация через API успешна');
+        } else {
+          console.warn('[Refresh] API ревалидации вернул ошибку, используем fallback');
+        }
+      } catch (error) {
+        // Если API недоступен (например, на self-hosted) - не проблема
+        console.log('[Refresh] API недоступен, используем router.refresh() (нормально для non-Vercel)');
+      } finally {
+        // В любом случае вызываем router.refresh() - это работает на всех платформах
+        router.refresh();
+      }
     });
   };
 
