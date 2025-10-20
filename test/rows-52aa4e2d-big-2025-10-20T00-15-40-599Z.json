@@ -1,8 +1,8 @@
 [
   {
-    "_id": "68f3cbcfbaa841391b506fbd",
-    "updatedAt": "2025-10-18T17:18:07.755Z",
-    "createdAt": "2025-10-18T17:18:07.755Z",
+    "_id": "68f3cb5ae7c854b803741fe6",
+    "updatedAt": "2025-10-18T17:18:07.943Z",
+    "createdAt": "2025-10-18T17:16:10.518Z",
     "data": {
       "tournament": {
         "_id": "68f3caf3e7c854b803741fc4",
@@ -32,48 +32,47 @@
         },
         "user": "526c54da-1eeb-450a-9efd-79e1a6a83cfe"
       },
-      "title": "1 тур 1 этапа",
-      "matches": [],
-      "current_stage": {
-        "_id": "68f3cb5ae7c854b803741fe6",
-        "updatedAt": "2025-10-18T17:18:07.943Z",
-        "createdAt": "2025-10-18T17:16:10.518Z",
+      "title": "первый этап",
+      "mechanic": "250614e6-1142-4604-b950-fd81c7a66497",
+      "current_tour": {
+        "_id": "68f3cbcfbaa841391b506fbd",
+        "updatedAt": "2025-10-18T17:18:07.755Z",
+        "createdAt": "2025-10-18T17:18:07.755Z",
         "data": {
           "tournament": "68f3caf3e7c854b803741fc4",
-          "title": "первый этап",
-          "mechanic": "250614e6-1142-4604-b950-fd81c7a66497",
-          "current_tour": "68f3cbcfbaa841391b506fbd",
-          "status": "d1bf2988-fba3-4cd5-b3e7-0a5bcdf22a23",
-          "tours": [
-            "68f3cbcfbaa841391b506fbd"
-          ],
-          "tournaments_teams_stages": [],
-          "order": 1
+          "title": "1 тур 1 этапа",
+          "matches": [],
+          "current_stage": "68f3cb5ae7c854b803741fe6",
+          "results": [],
+          "order": 1,
+          "stage": "68f3cb5ae7c854b803741fe6",
+          "dateStart": "2025-10-18T17:10:00.442Z",
+          "dateEnd": "2025-10-18T17:20:00.267Z"
         },
         "user": "526c54da-1eeb-450a-9efd-79e1a6a83cfe"
       },
-      "results": [],
-      "order": 1,
-      "stage": {
-        "_id": "68f3cb5ae7c854b803741fe6",
-        "updatedAt": "2025-10-18T17:18:07.943Z",
-        "createdAt": "2025-10-18T17:16:10.518Z",
-        "data": {
-          "tournament": "68f3caf3e7c854b803741fc4",
-          "title": "первый этап",
-          "mechanic": "250614e6-1142-4604-b950-fd81c7a66497",
-          "current_tour": "68f3cbcfbaa841391b506fbd",
-          "status": "d1bf2988-fba3-4cd5-b3e7-0a5bcdf22a23",
-          "tours": [
-            "68f3cbcfbaa841391b506fbd"
-          ],
-          "tournaments_teams_stages": [],
-          "order": 1
-        },
-        "user": "526c54da-1eeb-450a-9efd-79e1a6a83cfe"
-      },
-      "dateStart": "2025-10-18T17:10:00.442Z",
-      "dateEnd": "2025-10-18T17:20:00.267Z"
+      "status": "d1bf2988-fba3-4cd5-b3e7-0a5bcdf22a23",
+      "tours": [
+        {
+          "_id": "68f3cbcfbaa841391b506fbd",
+          "updatedAt": "2025-10-18T17:18:07.755Z",
+          "createdAt": "2025-10-18T17:18:07.755Z",
+          "data": {
+            "tournament": "68f3caf3e7c854b803741fc4",
+            "title": "1 тур 1 этапа",
+            "matches": [],
+            "current_stage": "68f3cb5ae7c854b803741fe6",
+            "results": [],
+            "order": 1,
+            "stage": "68f3cb5ae7c854b803741fe6",
+            "dateStart": "2025-10-18T17:10:00.442Z",
+            "dateEnd": "2025-10-18T17:20:00.267Z"
+          },
+          "user": "526c54da-1eeb-450a-9efd-79e1a6a83cfe"
+        }
+      ],
+      "tournaments_teams_stages": [],
+      "order": 1
     },
     "user": {
       "createdAt": "2024-12-03T20:12:09.380Z",
