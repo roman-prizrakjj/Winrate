@@ -1,208 +1,157 @@
 "use client";
 
-import { useState } from "react";
-import EditMatchModal from "./EditMatchModal";
-import { getDisciplineIcon } from "@/lib/disciplines";
+import { getDisciplineIconById } from "@/lib/disciplines";
+import { MATCH_STATUS_COLORS } from "@/lib/match-statuses";
 
 export interface MatchCardProps {
-  team1: string;
-  team2: string;
-  tournament: string;
-  datetime: string;
-  discipline: string; // Название дисциплины из disciplines.ts
-  gameIcon?: string; // URL для иконки игры (deprecated)
-  onViewDetails?: () => void;
-  onUpdateMatch?: (team1: string, team2: string) => void;
+  matchId: string;              // ID матча
+  team1: string;                // Название команды 1
+  team2: string;                // Название команды 2
+  stageName: string;            // Название этапа
+  tourName: string;             // Название тура
+  discipline: string;           // ID дисциплины для иконки
+  timeDisplay: string;          // Время "15:00"
+  statusDisplay: string;        // Текст статуса
+  statusColor: 'gray' | 'blue' | 'yellow' | 'red' | 'green'; // Цвет статуса
+  onViewDetails?: (matchId: string) => void;
 }
 
 export default function MatchCard({
+  matchId,
   team1,
   team2,
-  tournament,
-  datetime,
+  stageName,
+  tourName,
   discipline,
-  gameIcon,
+  timeDisplay,
+  statusDisplay,
+  statusColor,
   onViewDetails,
-  onUpdateMatch,
 }: MatchCardProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   const handleArrowClick = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleModalSave = (newTeam1: string, newTeam2: string) => {
-    if (onUpdateMatch) {
-      onUpdateMatch(newTeam1, newTeam2);
+    if (onViewDetails) {
+      onViewDetails(matchId);
     }
-    setIsModalOpen(false);
   };
 
-  const handleModalCancel = () => {
-    setIsModalOpen(false);
-  };
+  // Получаем цвета для статуса
+  const statusColors = MATCH_STATUS_COLORS[statusColor];
 
-  // Доступные команды для выбора (в реальном приложении будут из API)
-  const availableTeams = [
-    { id: "1", name: "Team Alpha" },
-    { id: "2", name: "Team Beta" },
-    { id: "3", name: "Team Gamma" },
-    { id: "4", name: "Team Delta" },
-    { id: "5", name: "Team Epsilon" },
-    { id: "6", name: team1 }, // Текущие команды
-    { id: "7", name: team2 },
-  ].filter((team, index, self) => 
-    index === self.findIndex(t => t.name === team.name) // Убираем дубликаты
-  );
+  // Формат отображения турнира: "Этап (Тур)"
+  const tournamentDisplay = `${stageName} (${tourName})`;
+
   return (
     <div className="
       flex flex-col justify-center items-center
-      p-2 gap-2 isolate
-      w-full max-w-[646px] h-[112px]
-      bg-[#282E3B] rounded-[10px]
-      relative
+      p-4 gap-2 isolate
+      w-full max-w-[800px] h-auto min-h-[80px]
+      bg-[#3A4153] border border-[#4A5568] rounded-[10px]
+      relative mx-auto shadow-lg
     ">
-      {/* Основная информация о матче */}
-      <div className="
-        flex items-center justify-between
-        w-full h-[50px] px-4 gap-4
-        z-0
-      ">
-        {/* Команда 1 */}
-        <div className="flex-1 flex justify-end">
+      {/* Первая строка - команды, статус, кнопка */}
+      <div className="flex items-center justify-between w-full gap-4">
+        {/* Левая часть - команды */}
+        <div className="flex items-center gap-3 flex-wrap">
           <span className="
             text-white text-[14px] font-bold
             bg-gradient-to-r from-blue-600/30 to-purple-600/30 
-            border border-blue-400/40 px-2 py-1 rounded-[6px]
-            whitespace-nowrap shadow-sm
+            border border-blue-400/40 px-3 py-1.5 rounded-[6px]
+            shadow-lg
           ">
             🏆 {team1}
           </span>
-        </div>
-
-        {/* Аватары команд */}
-        <div className="flex items-center gap-2">
-          <div className="
-            w-[50px] h-[50px] rounded-full
-            bg-gray-300 border-2 border-white/10
-            backdrop-blur-[21px]
-            flex items-center justify-center
-            text-xs text-gray-600
-          ">
-            T1
-          </div>
-
-          <div className="
-            text-white font-bold text-[20px] leading-[100%]
-            text-center w-[50px]
+          <span className="
+            text-white font-bold text-[16px] leading-[100%]
+            px-2
           ">
             VS
-          </div>
-
-          <div className="
-            w-[50px] h-[50px] rounded-full
-            bg-gray-300 border-2 border-white/10
-            backdrop-blur-[21px]
-            flex items-center justify-center
-            text-xs text-gray-600
-          ">
-            T2
-          </div>
-        </div>
-
-        {/* Команда 2 */}
-        <div className="flex-1 flex justify-start">
+          </span>
           <span className="
             text-white text-[14px] font-bold
             bg-gradient-to-r from-blue-600/30 to-purple-600/30 
-            border border-blue-400/40 px-2 py-1 rounded-[6px]
-            whitespace-nowrap shadow-sm
+            border border-blue-400/40 px-3 py-1.5 rounded-[6px]
+            shadow-lg
           ">
             🏆 {team2}
           </span>
         </div>
+        
+        {/* Правая часть - статус и кнопка */}
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <span className={`
+            text-[13px] font-medium px-3 py-1.5 rounded-[6px]
+            ${statusColors.bg} ${statusColors.border} ${statusColors.text}
+            border whitespace-nowrap
+          `}>
+            {statusDisplay}
+          </span>
+          
+          <button
+            onClick={handleArrowClick}
+            className="
+              w-8 h-8
+              flex items-center justify-center
+              bg-blue-500/10 border border-blue-500/30 rounded-[6px]
+              text-blue-400 hover:text-blue-300 hover:bg-blue-500/20
+              transition-all duration-200
+            "
+            title="Подробнее о матче"
+          >
+            <svg 
+              width="16" 
+              height="16" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              className="text-current"
+            >
+              <path 
+                d="M9 18L15 12L9 6" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      {/* Разделитель */}
-      <div className="w-full px-4">
-        <div className="h-[2px] bg-white/10 z-10" />
-      </div>
-
-      {/* Информация о турнире и времени */}
-      <div className="
-        flex items-center justify-between
-        w-full h-[20px] px-4 gap-2
-        z-20
-      ">
-        {/* Название турнира и дисциплина слева */}
-        <div className="flex-1 flex items-center gap-2 justify-start">
+      {/* Вторая строка - турнир, дисциплина, время */}
+      <div className="flex items-center justify-between w-full gap-3">
+        {/* Левая часть - турнир и дисциплина */}
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="
             text-orange-400 text-[12px] font-medium
             bg-orange-500/10 border border-orange-500/30 px-2 py-1 rounded-[4px]
             whitespace-nowrap
-          ">
-            🏟️ {tournament}
+          " title={tournamentDisplay}>
+            🏟️ {tournamentDisplay}
           </span>
+          
+          <span className="text-gray-400 text-[12px]">•</span>
           
           {/* Иконка дисциплины */}
           <div className="flex items-center gap-1">
             <img 
-              src={getDisciplineIcon(discipline)} 
-              alt={discipline}
-              className="w-8 h-8"
+              src={getDisciplineIconById(discipline)} 
+              alt="discipline"
+              className="w-6 h-6"
               title={discipline}
             />
           </div>
         </div>
 
-        {/* Время и стрелочка справа */}
-        <div className="flex items-center gap-2">
-          <div className="
-            text-[#2581FF] font-medium text-[15px] leading-5
+        {/* Правая часть - время */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="
+            text-blue-400 text-[13px] font-medium
+            bg-blue-500/10 border border-blue-500/30 px-2 py-1 rounded-[4px]
             whitespace-nowrap
           ">
-            {datetime}
-          </div>
-          
-          {/* Аккуратная стрелочка */}
-          <button
-            onClick={handleArrowClick}
-            className="
-              w-5 h-5
-              flex items-center justify-center
-              text-white/50 hover:text-[#2581FF]
-              transition-colors duration-200
-            "
-            title="Редактировать матч"
-          >
-              <svg 
-                width="12" 
-                height="12" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                className="text-current"
-              >
-                <path 
-                  d="M9 18L15 12L9 6" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
+            ⏰ {timeDisplay}
+          </span>
         </div>
       </div>
-
-      {/* Модальное окно для редактирования матча */}
-      <EditMatchModal
-        isOpen={isModalOpen}
-        onClose={handleModalCancel}
-        onSave={handleModalSave}
-        currentTeam1={team1}
-        currentTeam2={team2}
-        availableTeams={availableTeams}
-      />
     </div>
   );
 }

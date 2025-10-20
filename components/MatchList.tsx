@@ -1,20 +1,14 @@
 "use client";
 
-import MatchCard, { MatchCardProps } from "./MatchCard";
-
-export interface Match extends Omit<MatchCardProps, 'onViewDetails'> {
-  id: string;
-  gameIcon?: string; // URL для иконки игры (deprecated, используйте discipline)
-  discipline: string; // Название дисциплины из disciplines.ts
-}
+import MatchCard from "./MatchCard";
+import { AdaptedMatch } from "@/lib/types/matches";
 
 interface MatchListProps {
-  matches: Match[];
+  matches: AdaptedMatch[];
   onMatchDetails?: (matchId: string) => void;
-  onUpdateMatch?: (matchId: string, newTeam1: string, newTeam2: string) => void;
 }
 
-export default function MatchList({ matches, onMatchDetails, onUpdateMatch }: MatchListProps) {
+export default function MatchList({ matches, onMatchDetails }: MatchListProps) {
   const handleViewDetails = (matchId: string) => {
     if (onMatchDetails) {
       onMatchDetails(matchId);
@@ -23,30 +17,24 @@ export default function MatchList({ matches, onMatchDetails, onUpdateMatch }: Ma
     }
   };
 
-  const handleUpdateMatch = (matchId: string, newTeam1: string, newTeam2: string) => {
-    if (onUpdateMatch) {
-      onUpdateMatch(matchId, newTeam1, newTeam2);
-    } else {
-      console.log(`Обновление матча ${matchId}: ${newTeam1} vs ${newTeam2}`);
-    }
-  };
-
   return (
     <div className="
-      grid grid-cols-1 md:grid-cols-2 
-      gap-5 w-full
+      flex flex-col
+      gap-4 w-full max-w-5xl mx-auto
     ">
       {matches.map((match) => (
         <MatchCard
           key={match.id}
-          team1={match.team1}
-          team2={match.team2}
-          tournament={match.tournament}
-          datetime={match.datetime}
+          matchId={match.id}
+          team1={match.team1Name}
+          team2={match.team2Name}
+          stageName={match.stageName}
+          tourName={match.tourName}
           discipline={match.discipline}
-          gameIcon={match.gameIcon}
+          timeDisplay={match.timeDisplay}
+          statusDisplay={match.statusDisplay}
+          statusColor={match.statusColor as 'gray' | 'blue' | 'yellow' | 'red' | 'green'}
           onViewDetails={() => handleViewDetails(match.id)}
-          onUpdateMatch={(newTeam1, newTeam2) => handleUpdateMatch(match.id, newTeam1, newTeam2)}
         />
       ))}
     </div>

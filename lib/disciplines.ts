@@ -68,10 +68,22 @@ export function getDisciplineRequirement(discipline: string): string {
   return `${minTotal}-${maxTotal}`;
 }
 
-// Утилита для получения иконки дисциплины
+// Утилита для получения иконки дисциплины по названию
 export function getDisciplineIcon(discipline: string): string {
   const disciplineInfo = disciplines[discipline];
   return disciplineInfo?.icon || "/icons/disciplines/default.svg";
+}
+
+// Утилита для получения иконки дисциплины по ID
+export function getDisciplineIconById(disciplineId: string): string {
+  const discipline = Object.values(disciplines).find(d => d.id === disciplineId);
+  return discipline?.icon || "/icons/disciplines/default.svg";
+}
+
+// Утилита для получения названия дисциплины по ID
+export function getDisciplineNameById(disciplineId: string): string {
+  const entry = Object.entries(disciplines).find(([_, info]) => info.id === disciplineId);
+  return entry ? entry[0] : 'Неизвестная дисциплина';
 }
 
 // Утилита для получения всех дисциплин
