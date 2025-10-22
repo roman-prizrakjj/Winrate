@@ -26,7 +26,7 @@ export default function TournamentCard({ tournament }: TournamentCardProps) {
       >
         {/* 1. Название турнира */}
         <div className="flex-1 min-w-0">
-          <span className="text-white text-sm font-bold truncate block">
+          <span className="px-3 py-1.5 rounded-lg text-sm font-bold bg-[#2581FF]/20 text-white border border-[#2581FF]/40 inline-block truncate max-w-full">
             {tournament.title}
           </span>
         </div>
