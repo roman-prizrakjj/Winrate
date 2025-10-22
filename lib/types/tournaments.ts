@@ -16,6 +16,7 @@ export interface TournamentStage {
   title: string;
   mechanic: string;
   status: string;
+  statusColor: string;
   toursCount: number;
   order: number;
 }

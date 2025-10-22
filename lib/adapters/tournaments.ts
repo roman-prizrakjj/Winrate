@@ -5,6 +5,7 @@
 import type { Tournament, TournamentStage, TournamentTour } from '@/lib/types/tournaments';
 import { getTournamentStatusName, getTournamentStatusColor } from '@/lib/tournamentStatuses';
 import { getMechanicById } from '@/lib/stage-mechanics';
+import { getStageStatusById, getStageStatusColor } from '@/lib/stage-statuses';
 
 /**
  * Преобразует тур из SDK формата
@@ -28,12 +29,15 @@ function adaptTour(sdkTour: any): TournamentTour {
 function adaptStage(sdkStage: any): TournamentStage {
   const stageData = sdkStage.data || {};
   const mechanic = getMechanicById(stageData.mechanic);
+  const stageStatus = getStageStatusById(stageData.status);
+  const statusColor = getStageStatusColor(stageData.status);
   
   return {
     id: sdkStage._id,
     title: stageData.title || 'Без названия',
     mechanic: mechanic?.displayName || 'Неизвестно',
-    status: getTournamentStatusName(stageData.status),
+    status: stageStatus?.displayName || 'Неизвестный статус',
+    statusColor,
     toursCount: Array.isArray(stageData.tours) ? stageData.tours.length : 0,
     order: stageData.order || 0,
   };

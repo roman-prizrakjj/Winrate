@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { Tournament } from '@/lib/types/tournaments';
 import { disciplines } from '@/lib/disciplines';
+import { pluralizeTours, pluralizeStages, pluralizeMatches } from '@/lib/utils/pluralize';
 
 interface TournamentCardProps {
   tournament: Tournament;
@@ -55,10 +56,10 @@ export default function TournamentCard({ tournament }: TournamentCardProps) {
         {/* 4. Количество туров и этапов */}
         <div className="flex-shrink-0 flex items-center gap-2">
           <span className="px-2 py-1 rounded text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30">
-            {tournament.toursCount} туров
+            {pluralizeTours(tournament.toursCount)}
           </span>
           <span className="px-2 py-1 rounded text-xs font-medium bg-purple-500/20 text-purple-400 border border-purple-500/30">
-            {tournament.stagesCount} этапов
+            {pluralizeStages(tournament.stagesCount)}
           </span>
         </div>
 
@@ -106,9 +107,18 @@ export default function TournamentCard({ tournament }: TournamentCardProps) {
                     <span className="text-white text-xs flex-1">{stage.title}</span>
                     <span className="text-gray-400 text-xs">{stage.mechanic}</span>
                     <span className="px-2 py-1 rounded text-[10px] font-medium bg-gray-500/20 text-gray-400 border border-gray-500/30">
-                      {stage.toursCount} туров
+                      {pluralizeTours(stage.toursCount)}
                     </span>
-                    <span className="text-gray-300 text-xs">{stage.status}</span>
+                    <span 
+                      className="px-2 py-1 rounded text-[10px] font-medium border"
+                      style={{
+                        backgroundColor: `${stage.statusColor}20`,
+                        color: stage.statusColor,
+                        borderColor: `${stage.statusColor}30`
+                      }}
+                    >
+                      {stage.status}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -128,7 +138,7 @@ export default function TournamentCard({ tournament }: TournamentCardProps) {
                     <span className="text-white/70 text-xs font-bold">#{tour.order}</span>
                     <span className="text-white text-xs flex-1">{tour.title}</span>
                     <span className="px-2 py-1 rounded text-[10px] font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30">
-                      {tour.matchesCount} матчей
+                      {pluralizeMatches(tour.matchesCount)}
                     </span>
                     {tour.dateStart && (
                       <span className="text-gray-400 text-[10px]">
