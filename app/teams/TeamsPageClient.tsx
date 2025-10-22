@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import SearchInput from '@/components/SearchInput';
 import TeamList from '@/components/TeamList';
-import { Team } from '@/lib/mockData';
+import { Team } from '@/lib/types/teams';
 import { isTeamComplete, disciplines, getTeamStatus } from '@/lib/disciplines';
 
 interface TeamsPageClientProps {
@@ -23,8 +23,8 @@ export default function TeamsPageClient({ allTeams }: TeamsPageClientProps) {
     if (searchTerm.trim()) {
       filtered = filtered.filter(team => 
         team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        team.school.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        team.discipline.toLowerCase().includes(searchTerm.toLowerCase())
+        (team.school?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (team.discipline?.toLowerCase() || '').includes(searchTerm.toLowerCase())
       );
     }
     
@@ -36,7 +36,7 @@ export default function TeamsPageClient({ allTeams }: TeamsPageClientProps) {
     // Фильтр по полному составу (исключаем переукомплектованные команды)
     if (showFullTeamsOnly) {
       filtered = filtered.filter(team => {
-        const status = getTeamStatus(team.players.length, team.discipline);
+        const status = getTeamStatus(team.players.length, team.discipline || 'Unknown');
         return status === 'complete' || status === 'full';
       });
     }
@@ -146,7 +146,7 @@ export default function TeamsPageClient({ allTeams }: TeamsPageClientProps) {
                       <div className="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0"></div>
                       <span className="text-green-400 font-medium text-xs whitespace-nowrap">
                         {(selectedDiscipline === 'all' ? allTeams : allTeams.filter(team => team.discipline === selectedDiscipline))
-                          .filter(team => isTeamComplete(team.players.length, team.discipline)).length}
+                          .filter(team => isTeamComplete(team.players.length, team.discipline || 'Unknown')).length}
                       </span>
                     </div>
                     
@@ -158,7 +158,7 @@ export default function TeamsPageClient({ allTeams }: TeamsPageClientProps) {
                       <div className="w-1.5 h-1.5 bg-red-500 rounded-full flex-shrink-0"></div>
                       <span className="text-red-400 font-medium text-xs whitespace-nowrap">
                         {(selectedDiscipline === 'all' ? allTeams : allTeams.filter(team => team.discipline === selectedDiscipline))
-                          .filter(team => !isTeamComplete(team.players.length, team.discipline)).length}
+                          .filter(team => !isTeamComplete(team.players.length, team.discipline || 'Unknown')).length}
                       </span>
                     </div>
                   </div>

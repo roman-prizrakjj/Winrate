@@ -1,6 +1,6 @@
 'use client';
 
-import { Team } from '@/lib/mockData';
+import { Team } from '@/lib/types/teams';
 import TeamCard from './TeamCard';
 
 interface TeamListProps {

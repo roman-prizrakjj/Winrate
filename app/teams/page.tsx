@@ -1,6 +1,5 @@
 import Header from '@/components/Header';
 import TeamsPageClient from './TeamsPageClient';
-import { adaptTeams } from '@/lib/adapters/teams';
 import { getAllTeamsWithPlayers } from '@/lib/services/teams';
 
 // ISR: кеш на время из .env (по умолчанию 10 минут)
@@ -13,13 +12,12 @@ async function getTeams() {
   try {
     console.log('[Teams Page] Загрузка команд через SDK...');
     
-    // Прямой вызов SDK сервиса
+    // Прямой вызов SDK сервиса - возвращаем данные напрямую без адаптера
     const teams = await getAllTeamsWithPlayers();
     
     console.log(`[Teams Page] Загружено команд: ${teams.length}`);
     
-    // Преобразуем SDK данные в формат компонентов
-    return adaptTeams(teams);
+    return teams;
   } catch (error) {
     console.error('[Teams Page] Ошибка:', error);
     return [];

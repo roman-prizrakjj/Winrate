@@ -1,6 +1,6 @@
 'use client';
 
-import { Team } from '@/lib/mockData';
+import { Team, Player } from '@/lib/types/teams';
 import { useState } from 'react';
 import { getTeamStatus, getDisciplineRequirement, disciplines } from '@/lib/disciplines';
 
@@ -20,8 +20,8 @@ export default function TeamCard({ team }: TeamCardProps) {
   };
 
   // Определяем статус команды на основе дисциплины
-  const teamStatus = getTeamStatus(team.players.length, team.discipline);
-  const requirementText = getDisciplineRequirement(team.discipline);
+  const teamStatus = getTeamStatus(team.players.length, team.discipline || 'Unknown');
+  const requirementText = getDisciplineRequirement(team.discipline || 'Unknown');
 
   const getButtonStyle = () => {
     switch (teamStatus) {
@@ -163,21 +163,30 @@ export default function TeamCard({ team }: TeamCardProps) {
                 .sort((a, b) => {
                   // Сортировка: Капитан → Игрок → Запасной
                   const roleOrder: Record<string, number> = {
-                    'Капитан': 1,
-                    'Игрок': 2,
-                    'Запасной': 3,
+                    'captain': 1,
+                    'player': 2,
+                    'substitute': 3,
                   };
-                  return (roleOrder[a.role || ''] || 999) - (roleOrder[b.role || ''] || 999);
+                  return (roleOrder[a.role] || 999) - (roleOrder[b.role] || 999);
                 })
                 .map((player, index) => {
+                  // Маппинг ролей на русские названия
+                  const roleMap: Record<string, string> = {
+                    'captain': 'Капитан',
+                    'player': 'Игрок',
+                    'substitute': 'Запасной',
+                  };
+                  
+                  const roleDisplayName = roleMap[player.role] || player.role;
+
                   // Определяем цвет бейджа в зависимости от роли
-                  const getRoleBadgeStyle = (role: string | undefined) => {
+                  const getRoleBadgeStyle = (role: string) => {
                     switch (role) {
-                      case 'Капитан':
+                      case 'captain':
                         return 'bg-yellow-500/20 border border-yellow-500/40 text-yellow-400';
-                      case 'Игрок':
+                      case 'player':
                         return 'bg-blue-500/20 border border-blue-500/40 text-blue-400';
-                      case 'Запасной':
+                      case 'substitute':
                         return 'bg-gray-500/20 border border-gray-500/40 text-gray-400';
                       default:
                         return 'bg-gray-500/20 border border-gray-500/40 text-gray-400';
@@ -185,13 +194,13 @@ export default function TeamCard({ team }: TeamCardProps) {
                   };
 
                   // Иконки для ролей
-                  const getRoleIcon = (role: string | undefined) => {
+                  const getRoleIcon = (role: string) => {
                     switch (role) {
-                      case 'Капитан':
+                      case 'captain':
                         return '👑';
-                      case 'Игрок':
+                      case 'player':
                         return '⭐';
-                      case 'Запасной':
+                      case 'substitute':
                         return '🔄';
                       default:
                         return '❓';
@@ -215,19 +224,29 @@ export default function TeamCard({ team }: TeamCardProps) {
                         ">
                           {index + 1}
                         </div>
-                        <span className="text-white text-[16px]">{player.name}</span>
+                        <div className="flex flex-col">
+                          <span className="text-white text-[16px]">{player.nickname}</span>
+                          {player.role === 'captain' && player.telegram && (
+                            <a
+                              href={`https://t.me/${player.telegram.replace('@', '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-400 hover:text-blue-300 text-[12px] transition-colors"
+                            >
+                              📱 Telegram
+                            </a>
+                          )}
+                        </div>
                       </div>
-                      {player.role && (
-                        <span className={`
-                          text-[12px] font-medium
-                          px-3 py-1 rounded-full
-                          flex items-center gap-1
-                          ${getRoleBadgeStyle(player.role)}
-                        `}>
-                          <span>{getRoleIcon(player.role)}</span>
-                          <span>{player.role}</span>
-                        </span>
-                      )}
+                      <span className={`
+                        text-[12px] font-medium
+                        px-3 py-1 rounded-full
+                        flex items-center gap-1
+                        ${getRoleBadgeStyle(player.role)}
+                      `}>
+                        <span>{getRoleIcon(player.role)}</span>
+                        <span>{roleDisplayName}</span>
+                      </span>
                     </div>
                   );
                 })}
