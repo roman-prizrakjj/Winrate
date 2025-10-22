@@ -1,8 +1,10 @@
 import Header from '@/components/Header';
 import CreateButtonsSection from './CreateButtonsSection';
-import StagesSection from '@/components/StagesSection';
+import CreatePageClient from './CreatePageClient';
 import { getAllStages } from '@/lib/services/stages';
 import { adaptStages } from '@/lib/adapters/stages';
+import { getAllTournaments } from '@/lib/services/tournaments';
+import { adaptTournaments } from '@/lib/adapters/tournaments';
 
 // ISR: кеш на 60 секунд (1 минута)
 export const revalidate = 60;
@@ -26,13 +28,33 @@ async function getStages() {
   }
 }
 
+/**
+ * Загрузка турниров через SDK напрямую
+ */
+async function getTournaments() {
+  try {
+    console.log('[Create Page] Загрузка турниров через SDK...');
+    
+    const tournaments = await getAllTournaments();
+    
+    console.log(`[Create Page] Загружено турниров: ${tournaments.length}`);
+    
+    // Преобразуем SDK данные в формат компонентов
+    return adaptTournaments(tournaments);
+  } catch (error) {
+    console.error('[Create Page] Ошибка загрузки турниров:', error);
+    return [];
+  }
+}
+
 export default async function CreatePage() {
   console.log(`[${new Date().toISOString()}] [Create ISR] Регенерация страницы...`);
   
-  // Загружаем этапы на сервере
+  // Загружаем этапы и турниры на сервере
   const allStages = await getStages();
+  const allTournaments = await getTournaments();
 
-  console.log(`[Create Page Server] Отрисовка с ${allStages.length} этапами`);
+  console.log(`[Create Page Server] Отрисовка с ${allStages.length} этапами и ${allTournaments.length} турнирами`);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8">
@@ -48,8 +70,8 @@ export default async function CreatePage() {
         {/* Разделитель */}
         <div className="my-12 border-t border-white/10" />
 
-        {/* Список этапов */}
-        <StagesSection allStages={allStages} />
+        {/* Табы: Турниры / Туры */}
+        <CreatePageClient allStages={allStages} allTournaments={allTournaments} />
       </div>
     </div>
   );
