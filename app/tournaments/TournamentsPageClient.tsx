@@ -182,7 +182,8 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
         // Пытаемся вызвать API ревалидации (для Vercel и подобных платформ)
         const response = await fetch('/api/revalidate-tournaments', { 
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
+          cache: 'no-store'
         });
         
         if (response.ok) {

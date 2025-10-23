@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { MatchDetailsResponse } from "@/lib/types/match-details";
-import { TEAM_MATCH_STATUS_COLORS } from "@/lib/team-match-statuses";
+import { TEAM_MATCH_STATUS_COLORS, TEAM_MATCH_STATUSES } from "@/lib/team-match-statuses";
 import { PROOF_STATUS_COLORS } from "@/lib/proof-statuses";
 
 interface MatchDetailsModalProps {
@@ -43,6 +43,64 @@ export default function MatchDetailsModal({
 
     fetchMatchDetails();
   }, [matchId]);
+
+  // Обработчик изменения статуса команды с оптимистичным обновлением
+  const handleStatusChange = async (matchTeamId: string, newStatusId: string, isTeam1: boolean) => {
+    if (!details) return;
+
+    // Сохраняем старые данные для отката
+    const previousDetails = { ...details };
+    
+    // Получаем новый статус из справочника
+    const newStatus = Object.values(TEAM_MATCH_STATUSES).find(s => s.id === newStatusId);
+    
+    // Оптимистично обновляем UI сразу
+    setDetails(prev => {
+      if (!prev) return prev;
+      
+      if (isTeam1) {
+        return {
+          ...prev,
+          team1: {
+            ...prev.team1,
+            statusId: newStatusId,
+            statusDisplay: newStatus?.displayName || 'Статуса нет',
+            statusColor: (newStatus?.color || null) as "green" | "red" | "yellow" | null
+          }
+        };
+      } else {
+        return {
+          ...prev,
+          team2: {
+            ...prev.team2,
+            statusId: newStatusId,
+            statusDisplay: newStatus?.displayName || 'Статуса нет',
+            statusColor: (newStatus?.color || null) as "green" | "red" | "yellow" | null
+          }
+        };
+      }
+    });
+
+    // Отправляем запрос в фоне
+    try {
+      const response = await fetch('/api/match-details/update-team-status', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ matchTeamId, newStatusId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Не удалось обновить статус');
+      }
+    } catch (err) {
+      console.error('Ошибка обновления статуса:', err);
+      // Откатываем изменения при ошибке
+      setDetails(previousDetails);
+      alert('Не удалось обновить статус команды. Изменения отменены.');
+    }
+  };
 
   // Закрытие по клику на backdrop
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -105,17 +163,25 @@ export default function MatchDetailsModal({
               <div className="bg-[#1A1F2E] rounded-lg p-4 border border-white/10">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                   🏆 {team1Name}
-                  {details.team1.statusDisplay && (
-                    <span
-                      className={`px-2 py-1 rounded text-sm font-medium ${
-                        details.team1.statusColor 
-                          ? `${TEAM_MATCH_STATUS_COLORS[details.team1.statusColor].bg} ${TEAM_MATCH_STATUS_COLORS[details.team1.statusColor].text}`
-                          : "bg-gray-500/20 text-gray-400"
-                      }`}
-                    >
-                      {details.team1.statusDisplay}
-                    </span>
-                  )}
+                  {/* Дропдаун выбора статуса */}
+                  <select
+                    key={details.team1.statusId}
+                    value={details.team1.statusId || ''}
+                    onChange={(e) => handleStatusChange(details.team1._id, e.target.value, true)}
+                    className={`px-3 py-1 rounded text-sm font-medium border-0 cursor-pointer ${
+                      details.team1.statusColor 
+                        ? `${TEAM_MATCH_STATUS_COLORS[details.team1.statusColor].bg} ${TEAM_MATCH_STATUS_COLORS[details.team1.statusColor].text}`
+                        : "bg-gray-500/20 text-gray-400"
+                    }`}
+                    style={{ backgroundColor: 'inherit' }}
+                  >
+                    <option value="" className="bg-[#282E3B] text-gray-300">Статуса нет</option>
+                    {Object.values(TEAM_MATCH_STATUSES).map((status) => (
+                      <option key={status.id} value={status.id} className="bg-[#282E3B] text-white">
+                        {status.displayName}
+                      </option>
+                    ))}
+                  </select>
                 </h3>
 
                 <div className="space-y-3">
@@ -154,17 +220,25 @@ export default function MatchDetailsModal({
               <div className="bg-[#1A1F2E] rounded-lg p-4 border border-white/10">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                   🏆 {team2Name}
-                  {details.team2.statusDisplay && (
-                    <span
-                      className={`px-2 py-1 rounded text-sm font-medium ${
-                        details.team2.statusColor 
-                          ? `${TEAM_MATCH_STATUS_COLORS[details.team2.statusColor].bg} ${TEAM_MATCH_STATUS_COLORS[details.team2.statusColor].text}`
-                          : "bg-gray-500/20 text-gray-400"
-                      }`}
-                    >
-                      {details.team2.statusDisplay}
-                    </span>
-                  )}
+                  {/* Дропдаун выбора статуса */}
+                  <select
+                    key={details.team2.statusId}
+                    value={details.team2.statusId || ''}
+                    onChange={(e) => handleStatusChange(details.team2._id, e.target.value, false)}
+                    className={`px-3 py-1 rounded text-sm font-medium border-0 cursor-pointer ${
+                      details.team2.statusColor 
+                        ? `${TEAM_MATCH_STATUS_COLORS[details.team2.statusColor].bg} ${TEAM_MATCH_STATUS_COLORS[details.team2.statusColor].text}`
+                        : "bg-gray-500/20 text-gray-400"
+                    }`}
+                    style={{ backgroundColor: 'inherit' }}
+                  >
+                    <option value="" className="bg-[#282E3B] text-gray-300">Статуса нет</option>
+                    {Object.values(TEAM_MATCH_STATUSES).map((status) => (
+                      <option key={status.id} value={status.id} className="bg-[#282E3B] text-white">
+                        {status.displayName}
+                      </option>
+                    ))}
+                  </select>
                 </h3>
 
                 <div className="space-y-3">
