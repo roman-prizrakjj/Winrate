@@ -139,12 +139,12 @@ export default function MatchDetailsModal({
                     <p className="text-white/60 text-sm mb-1">Статус проверки:</p>
                     <span
                       className={`inline-block px-3 py-1 rounded text-sm ${
-                        PROOF_STATUS_COLORS[details.team1.proofStatusColor].bg
+                        PROOF_STATUS_COLORS[details.team2.proofStatusColor].bg
                       } ${
-                        PROOF_STATUS_COLORS[details.team1.proofStatusColor].text
+                        PROOF_STATUS_COLORS[details.team2.proofStatusColor].text
                       }`}
                     >
-                      {details.team1.proofStatusDisplay}
+                      {details.team2.proofStatusDisplay}
                     </span>
                   </div>
                 </div>
@@ -188,12 +188,12 @@ export default function MatchDetailsModal({
                     <p className="text-white/60 text-sm mb-1">Статус проверки:</p>
                     <span
                       className={`inline-block px-3 py-1 rounded text-sm ${
-                        PROOF_STATUS_COLORS[details.team2.proofStatusColor].bg
+                        PROOF_STATUS_COLORS[details.team1.proofStatusColor].bg
                       } ${
-                        PROOF_STATUS_COLORS[details.team2.proofStatusColor].text
+                        PROOF_STATUS_COLORS[details.team1.proofStatusColor].text
                       }`}
                     >
-                      {details.team2.proofStatusDisplay}
+                      {details.team1.proofStatusDisplay}
                     </span>
                   </div>
                 </div>

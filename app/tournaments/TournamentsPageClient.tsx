@@ -34,7 +34,11 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
   const [selectedTournament, setSelectedTournament] = useState<string>("Все");
   const [selectedTour, setSelectedTour] = useState<string>("Все");
   const [selectedMatch, setSelectedMatch] = useState<AdaptedMatch | null>(null);
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState<'completed' | 'inProgress' | 'protests' | null>(null);
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState<
+    'completed' | 'inProgress' | 'protests' | 
+    'waiting' | 'playing' | 'waitingConfirmation' | 
+    null
+  >(null);
 
   // Получаем список туров для выбранного турнира
   const availableTours = useMemo(() => {
@@ -67,7 +71,9 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
     discipline: string, 
     tournament: string, 
     tour: string,
-    statusFilter: 'completed' | 'inProgress' | 'protests' | null
+    statusFilter: 'completed' | 'inProgress' | 'protests' | 
+                  'waiting' | 'playing' | 'waitingConfirmation' | 
+                  null
   ) => {
     let filtered = matches;
 
@@ -98,6 +104,7 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
 
     // Фильтр по статусу
     if (statusFilter) {
+      // Старые фильтры (группы)
       if (statusFilter === 'completed') {
         filtered = filtered.filter(match => match.statusDisplay === "Игра завершена");
       } else if (statusFilter === 'inProgress') {
@@ -108,6 +115,14 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
         );
       } else if (statusFilter === 'protests') {
         filtered = filtered.filter(match => match.statusDisplay === "Протест");
+      }
+      // Новые фильтры (конкретные статусы)
+      else if (statusFilter === 'waiting') {
+        filtered = filtered.filter(match => match.statusDisplay === "Ожидание игры");
+      } else if (statusFilter === 'playing') {
+        filtered = filtered.filter(match => match.statusDisplay === "Идёт игра");
+      } else if (statusFilter === 'waitingConfirmation') {
+        filtered = filtered.filter(match => match.statusDisplay === "Ожидание подтверждения");
       }
     }
 
@@ -152,7 +167,9 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
   };
 
   // Функция изменения фильтра по статусу
-  const handleStatusFilterChange = (filter: 'completed' | 'inProgress' | 'protests' | null) => {
+  const handleStatusFilterChange = (filter: 'completed' | 'inProgress' | 'protests' | 
+                                             'waiting' | 'playing' | 'waitingConfirmation' | 
+                                             null) => {
     setSelectedStatusFilter(filter);
     setFilteredMatches(applyFilters(allMatches, searchQuery, selectedDiscipline, selectedTournament, selectedTour, filter));
   };
@@ -185,6 +202,7 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
 
   // Подсчет статистики матчей
   const matchStats = useMemo(() => {
+    // Старая статистика (группы)
     const completed = filteredMatches.filter(match => match.statusDisplay === "Игра завершена").length;
     const protests = filteredMatches.filter(match => match.statusDisplay === "Протест").length;
     const inProgress = filteredMatches.filter(match => 
@@ -193,7 +211,19 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
       match.statusDisplay === "Ожидание подтверждения"
     ).length;
 
-    return { completed, inProgress, protests };
+    // Новая детальная статистика
+    const waiting = filteredMatches.filter(match => match.statusDisplay === "Ожидание игры").length;
+    const playing = filteredMatches.filter(match => match.statusDisplay === "Идёт игра").length;
+    const waitingConfirmation = filteredMatches.filter(match => match.statusDisplay === "Ожидание подтверждения").length;
+
+    return { 
+      completed, 
+      inProgress, 
+      protests,
+      waiting,
+      playing,
+      waitingConfirmation
+    };
   }, [filteredMatches]);
 
   return (
@@ -215,6 +245,9 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
             completed={matchStats.completed}
             inProgress={matchStats.inProgress}
             protests={matchStats.protests}
+            waiting={matchStats.waiting}
+            playing={matchStats.playing}
+            waitingConfirmation={matchStats.waitingConfirmation}
             activeFilter={selectedStatusFilter}
             onFilterChange={handleStatusFilterChange}
           />
