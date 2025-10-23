@@ -19,9 +19,18 @@ export default function TeamCard({ team }: TeamCardProps) {
     setIsModalOpen(false);
   };
 
-  // Определяем статус команды на основе дисциплины
-  const teamStatus = getTeamStatus(team.players.length, team.discipline || 'Unknown');
+  // Фильтруем капитана - считаем только игроков
+  const playersWithoutCaptain = team.players.filter(p => p.role !== 'captain');
+  const playersCount = playersWithoutCaptain.length;
+
+  // Определяем статус команды на основе дисциплины (передаем кол-во БЕЗ капитана)
+  const teamStatus = getTeamStatus(playersCount, team.discipline || 'Unknown');
   const requirementText = getDisciplineRequirement(team.discipline || 'Unknown');
+  
+  // Получаем min и max из дисциплины для отдельного бейджа
+  const disciplineInfo = disciplines[team.discipline || 'Unknown'];
+  const minPlayers = disciplineInfo?.min || 0;
+  const maxPlayers = disciplineInfo?.max || 0;
 
   const getButtonStyle = () => {
     switch (teamStatus) {
@@ -106,13 +115,20 @@ export default function TeamCard({ team }: TeamCardProps) {
         </div>
 
         {/* Вторая строка - информация о составе */}
-        <div className="flex items-center w-full">
+        <div className="flex items-center gap-3 w-full flex-wrap">
           <span className="
             text-green-400 text-[12px] font-medium
             bg-green-500/10 border border-green-500/30 px-2 py-1 rounded-[4px]
             whitespace-nowrap
           ">
-            👥 Состав: {team.players.length} из {requirementText}
+            👥 Состав: {playersCount} {playersCount === 1 ? 'человек' : 'человек'}
+          </span>
+          <span className="
+            text-blue-400 text-[12px] font-medium
+            bg-blue-500/10 border border-blue-500/30 px-2 py-1 rounded-[4px]
+            whitespace-nowrap
+          ">
+            📊 Мин: {minPlayers} Макс: {maxPlayers}
           </span>
         </div>
       </div>

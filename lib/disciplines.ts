@@ -24,33 +24,26 @@ export const disciplines: Record<string, DisciplineInfo> = {
 
 // Утилитарные функции для определения статуса команды
 // Важно: в disciplines указано количество игроков БЕЗ капитана
-// Капитан всегда есть дополнительно, поэтому от общего количества отнимаем 1
-export function isTeamComplete(totalPlayers: number, discipline: string): boolean {
+// ТЕПЕРЬ: вызывающий код должен передавать уже отфильтрованное количество (БЕЗ капитана)
+export function isTeamComplete(playersCount: number, discipline: string): boolean {
   const disciplineInfo = disciplines[discipline];
   if (!disciplineInfo) return false;
-  // Вычитаем капитана из общего количества и сравниваем с минимумом
-  const playersWithoutCaptain = Math.max(0, totalPlayers - 1);
-  return playersWithoutCaptain >= disciplineInfo.min;
+  return playersCount >= disciplineInfo.min;
 }
 // Проверяет, полная ли команда (равна максимуму)
-export function isTeamFull(totalPlayers: number, discipline: string): boolean {
+export function isTeamFull(playersCount: number, discipline: string): boolean {
   const disciplineInfo = disciplines[discipline];
   if (!disciplineInfo) return false;
-  // Вычитаем капитана из общего количества и сравниваем с максимумом
-  const playersWithoutCaptain = Math.max(0, totalPlayers - 1);
-  return playersWithoutCaptain === disciplineInfo.max;
+  return playersCount === disciplineInfo.max;
 }
 // Получает статус команды: 'incomplete' | 'complete' | 'full' | 'overstaffed'
-export function getTeamStatus(totalPlayers: number, discipline: string): 'incomplete' | 'complete' | 'full' | 'overstaffed' {
+export function getTeamStatus(playersCount: number, discipline: string): 'incomplete' | 'complete' | 'full' | 'overstaffed' {
   const disciplineInfo = disciplines[discipline];
   if (!disciplineInfo) return 'incomplete';
   
-  // Вычитаем капитана из общего количества
-  const playersWithoutCaptain = Math.max(0, totalPlayers - 1);
-  
-  if (playersWithoutCaptain < disciplineInfo.min) return 'incomplete';
-  if (playersWithoutCaptain === disciplineInfo.max) return 'full';
-  if (playersWithoutCaptain > disciplineInfo.max) return 'overstaffed';
+  if (playersCount < disciplineInfo.min) return 'incomplete';
+  if (playersCount === disciplineInfo.max) return 'full';
+  if (playersCount > disciplineInfo.max) return 'overstaffed';
   return 'complete';
 }
 // Утилита для получения текстового требования по дисциплине
@@ -58,14 +51,11 @@ export function getDisciplineRequirement(discipline: string): string {
   const disciplineInfo = disciplines[discipline];
   if (!disciplineInfo) return '?/?';
   
-  // Показываем общее количество (включая капитана)
-  const minTotal = disciplineInfo.min + 1; // +1 капитан
-  const maxTotal = disciplineInfo.max + 1; // +1 капитан
-  
-  if (minTotal === maxTotal) {
-    return `${minTotal}`;
+  // Показываем чистые значения из дисциплины (БЕЗ учета капитана)
+  if (disciplineInfo.min === disciplineInfo.max) {
+    return `${disciplineInfo.min}`;
   }
-  return `${minTotal}-${maxTotal}`;
+  return `${disciplineInfo.min}-${disciplineInfo.max}`;
 }
 
 // Утилита для получения иконки дисциплины по названию

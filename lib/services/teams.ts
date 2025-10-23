@@ -33,30 +33,105 @@ function createSDKClient() {
  */
 async function getAllTeams(client: EmdCloud): Promise<any[]> {
   const db = client.database(TEAMS_COLLECTION_ID);
-  const teams: any[] = [];
-  let page = 0;
-  const limit = 100;
-  let hasMore = true;
+  
+  // Конфигурация из ENV
+  const pageSize = parseInt(process.env.PAGE_SIZE || '100', 10);
+  const parallelLimit = parseInt(process.env.PARALLEL_REQUESTS_LIMIT || '5', 10);
+  
+  console.log(`[Teams Service] Конфигурация: PAGE_SIZE=${pageSize}, PARALLEL_REQUESTS_LIMIT=${parallelLimit}`);
 
-  while (hasMore) {
-    const result = await db.getRows({
-      limit,
-      page,
-      useHumanReadableNames: true,
-      // @ts-ignore - Отключаем Next.js fetch cache для больших ответов
-      cache: 'no-store',
-    });
+  // Загружаем первую страницу
+  const firstPage = await db.getRows({
+    limit: pageSize,
+    page: 0,
+    useHumanReadableNames: true,
+    // @ts-ignore
+    cache: 'no-store',
+  });
 
-    // Проверка на ошибку или пустой массив
-    if (!Array.isArray(result) || result.length === 0) {
-      hasMore = false;
-    } else {
-      teams.push(...result);
-      page++;
+  if (!Array.isArray(firstPage) || firstPage.length === 0) {
+    return [];
+  }
+
+  const teams: any[] = [...firstPage];
+  
+  // Если одна страница содержит все данные
+  if (firstPage.length < pageSize) {
+    return teams;
+  }
+
+  // Параллельная загрузка остальных страниц
+  if (parallelLimit > 1) {
+    let page = 1;
+    let hasMore = true;
+    
+    while (hasMore) {
+      const batchStart = page;
+      const batchEnd = Math.min(page + parallelLimit, page + 20);
+      const batchSize = batchEnd - batchStart;
       
-      // Если получили меньше чем limit, значит это последняя страница
-      if (result.length < limit) {
+      const batchPromises = Array.from({ length: batchSize }, (_, index) => {
+        const currentPage = batchStart + index;
+        return db.getRows({
+          limit: pageSize,
+          page: currentPage,
+          useHumanReadableNames: true,
+          // @ts-ignore
+          cache: 'no-store',
+        });
+      });
+      
+      const batchResults = await Promise.all(batchPromises);
+      
+      let emptyPagesCount = 0;
+      batchResults.forEach((result) => {
+        if (Array.isArray(result) && result.length > 0) {
+          teams.push(...result);
+          if (result.length < pageSize) {
+            hasMore = false;
+          }
+        } else {
+          emptyPagesCount++;
+        }
+      });
+      
+      if (emptyPagesCount === batchSize) {
         hasMore = false;
+      }
+      
+      page = batchEnd;
+      
+      if (page > 100) {
+        break;
+      }
+    }
+  } else {
+    // Последовательная загрузка
+    let page = 1;
+    let hasMore = true;
+
+    while (hasMore) {
+      const result = await db.getRows({
+        limit: pageSize,
+        page,
+        useHumanReadableNames: true,
+        // @ts-ignore
+        cache: 'no-store',
+      });
+
+      if (!Array.isArray(result) || result.length === 0) {
+        hasMore = false;
+      } else {
+        teams.push(...result);
+        page++;
+        
+        if (result.length < pageSize) {
+          hasMore = false;
+        }
+      }
+      
+      if (page > 100) {
+        break;
       }
     }
   }
@@ -69,30 +144,103 @@ async function getAllTeams(client: EmdCloud): Promise<any[]> {
  */
 async function getAllParticipants(client: EmdCloud): Promise<any[]> {
   const db = client.database(TEAMS_PARTICIPANTS_COLLECTION_ID);
-  const participants: any[] = [];
-  let page = 0;
-  const limit = 100;
-  let hasMore = true;
+  
+  // Конфигурация из ENV
+  const pageSize = parseInt(process.env.PAGE_SIZE || '100', 10);
+  const parallelLimit = parseInt(process.env.PARALLEL_REQUESTS_LIMIT || '5', 10);
 
-  while (hasMore) {
-    const result = await db.getRows({
-      limit,
-      page,
-      useHumanReadableNames: true,
-      // @ts-ignore - Отключаем Next.js fetch cache для больших ответов
-      cache: 'no-store',
-    });
+  // Загружаем первую страницу
+  const firstPage = await db.getRows({
+    limit: pageSize,
+    page: 0,
+    useHumanReadableNames: true,
+    // @ts-ignore
+    cache: 'no-store',
+  });
 
-    // Проверка на ошибку или пустой массив
-    if (!Array.isArray(result) || result.length === 0) {
-      hasMore = false;
-    } else {
-      participants.push(...result);
-      page++;
+  if (!Array.isArray(firstPage) || firstPage.length === 0) {
+    return [];
+  }
+
+  const participants: any[] = [...firstPage];
+  
+  // Если одна страница содержит все данные
+  if (firstPage.length < pageSize) {
+    return participants;
+  }
+
+  // Параллельная загрузка остальных страниц
+  if (parallelLimit > 1) {
+    let page = 1;
+    let hasMore = true;
+    
+    while (hasMore) {
+      const batchStart = page;
+      const batchEnd = Math.min(page + parallelLimit, page + 20);
+      const batchSize = batchEnd - batchStart;
       
-      // Если получили меньше чем limit, значит это последняя страница
-      if (result.length < limit) {
+      const batchPromises = Array.from({ length: batchSize }, (_, index) => {
+        const currentPage = batchStart + index;
+        return db.getRows({
+          limit: pageSize,
+          page: currentPage,
+          useHumanReadableNames: true,
+          // @ts-ignore
+          cache: 'no-store',
+        });
+      });
+      
+      const batchResults = await Promise.all(batchPromises);
+      
+      let emptyPagesCount = 0;
+      batchResults.forEach((result) => {
+        if (Array.isArray(result) && result.length > 0) {
+          participants.push(...result);
+          if (result.length < pageSize) {
+            hasMore = false;
+          }
+        } else {
+          emptyPagesCount++;
+        }
+      });
+      
+      if (emptyPagesCount === batchSize) {
         hasMore = false;
+      }
+      
+      page = batchEnd;
+      
+      if (page > 100) {
+        break;
+      }
+    }
+  } else {
+    // Последовательная загрузка
+    let page = 1;
+    let hasMore = true;
+
+    while (hasMore) {
+      const result = await db.getRows({
+        limit: pageSize,
+        page,
+        useHumanReadableNames: true,
+        // @ts-ignore
+        cache: 'no-store',
+      });
+
+      if (!Array.isArray(result) || result.length === 0) {
+        hasMore = false;
+      } else {
+        participants.push(...result);
+        page++;
+        
+        if (result.length < pageSize) {
+          hasMore = false;
+        }
+      }
+      
+      if (page > 100) {
+        break;
       }
     }
   }
