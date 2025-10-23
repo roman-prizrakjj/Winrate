@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import MatchList from "@/components/MatchList";
 import SearchInput from "@/components/SearchInput";
 import { MatchStatsIndicator } from "@/components/MatchStatsIndicator";
@@ -24,6 +25,9 @@ interface TournamentsPageClientProps {
 }
 
 export default function TournamentsPageClient({ allMatches, tournaments, disciplines }: TournamentsPageClientProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  
   const [filteredMatches, setFilteredMatches] = useState<AdaptedMatch[]>(allMatches);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDiscipline, setSelectedDiscipline] = useState<string>("Все");
@@ -122,6 +126,32 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
 
   const handleCloseModal = () => {
     setSelectedMatch(null);
+  };
+
+  // Обновление данных матчей
+  // Универсальное решение: работает на Vercel (через API) и на других платформах (router.refresh)
+  const handleRefresh = async () => {
+    startTransition(async () => {
+      try {
+        // Пытаемся вызвать API ревалидации (для Vercel и подобных платформ)
+        const response = await fetch('/api/revalidate-tournaments', { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (response.ok) {
+          console.log('[Refresh] Ревалидация через API успешна');
+        } else {
+          console.warn('[Refresh] API ревалидации вернул ошибку, используем fallback');
+        }
+      } catch (error) {
+        // Если API недоступен (например, на self-hosted) - не проблема
+        console.log('[Refresh] API недоступен, используем router.refresh() (нормально для non-Vercel)');
+      } finally {
+        // В любом случае вызываем router.refresh() - это работает на всех платформах
+        router.refresh();
+      }
+    });
   };
 
   // Подсчет статистики матчей
@@ -232,6 +262,24 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
               </option>
             ))}
           </select>
+
+          {/* Кнопка обновить */}
+          <button
+            onClick={handleRefresh}
+            disabled={isPending}
+            className="
+              flex items-center gap-2 px-4 py-1.5 flex-shrink-0
+              bg-[#2581FF] hover:bg-[#1a6edb] text-white
+              rounded-[8px] text-[14px] font-medium whitespace-nowrap
+              transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+            "
+            title="Обновить список матчей"
+          >
+            <span className={isPending ? 'animate-spin' : ''}>
+              {isPending ? '⏳' : '🔄'}
+            </span>
+            <span>{isPending ? 'Обновление...' : 'Обновить'}</span>
+          </button>
         </div>
       </div>
 

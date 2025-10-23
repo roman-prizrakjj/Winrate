@@ -13,7 +13,7 @@ export default function Header({ activeTab }: HeaderProps) {
   const tabs = [
     { id: "teams", label: "Команды", href: "/teams" },
     { id: "create", label: "Создать", href: "/create" },
-    { id: "tournaments", label: "Турниры", href: "/tournaments" },
+    { id: "tournaments", label: "Матчи", href: "/tournaments" },
     { id: "leaderboard", label: "Лидерборд", href: "/leaderboard" },
   ];
 

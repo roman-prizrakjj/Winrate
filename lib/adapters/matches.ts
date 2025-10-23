@@ -45,19 +45,19 @@ export function adaptMatch(
     team2Name: team2?.name || 'Команда не найдена',
     
     // Турнир/Этап/Тур
-    stageName: match.data.tournament.data.title,
-    stageId: match.data.tour.data.stage,
-    tourName: match.data.tour.data.title,
-    tourOrder: match.data.tour.data.order,
+    stageName: match.data.tournament?.data?.title || 'Без турнира',
+    stageId: match.data.tour?.data?.stage || '',
+    tourName: match.data.tour?.data?.title || 'Без тура',
+    tourOrder: match.data.tour?.data?.order || 0,
     
     // Дисциплина
-    discipline: match.data.tournament.data.discipline,
-    disciplineName: getDisciplineNameById(match.data.tournament.data.discipline),
+    discipline: match.data.tournament?.data?.discipline || '',
+    disciplineName: getDisciplineNameById(match.data.tournament?.data?.discipline || ''),
     
     // Время
-    dateStart: match.data.tour.data.dateStart,
-    dateEnd: match.data.tour.data.dateEnd,
-    timeDisplay: formatTime(match.data.tour.data.dateStart),
+    dateStart: match.data.tour?.data?.dateStart || '',
+    dateEnd: match.data.tour?.data?.dateEnd || '',
+    timeDisplay: match.data.tour?.data?.dateStart ? formatTime(match.data.tour.data.dateStart) : '--:--',
     
     // Статус
     status: match.data.status,

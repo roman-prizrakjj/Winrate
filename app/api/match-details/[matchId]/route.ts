@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { EmdCloud, AppEnvironment, AuthType } from '@emd-cloud/sdk';
+import { getTeamMatchStatus } from '@/lib/team-match-statuses';
+import { getProofStatus } from '@/lib/proof-statuses';
 
 /**
  * API Route для получения детальной информации о матче
@@ -61,20 +63,38 @@ export async function GET(
     }
 
     // Извлекаем данные команд
+    const team1StatusId = teams[0].data?.status || null;
+    const team2StatusId = teams[1].data?.status || null;
+    const team1ProofStatusId = teams[0].data?.proof_status || null;
+    const team2ProofStatusId = teams[1].data?.proof_status || null;
+
+    const team1Status = team1StatusId ? getTeamMatchStatus(team1StatusId) : null;
+    const team2Status = team2StatusId ? getTeamMatchStatus(team2StatusId) : null;
+    const team1ProofStatus = getProofStatus(team1ProofStatusId);
+    const team2ProofStatus = getProofStatus(team2ProofStatusId);
+
     const team1Data = {
       _id: teams[0]._id,
       teamId: teams[0].data?.team || "",
-      status: teams[0].data?.status || null,
+      statusId: team1StatusId,
+      statusDisplay: team1Status?.displayName || null,
+      statusColor: team1Status?.color || null,
       proof: teams[0].data?.proof || null,
-      proofStatus: teams[0].data?.proof_status || null,
+      proofStatusId: team1ProofStatusId,
+      proofStatusDisplay: team1ProofStatus.displayName,
+      proofStatusColor: team1ProofStatus.color,
     };
 
     const team2Data = {
       _id: teams[1]._id,
       teamId: teams[1].data?.team || "",
-      status: teams[1].data?.status || null,
+      statusId: team2StatusId,
+      statusDisplay: team2Status?.displayName || null,
+      statusColor: team2Status?.color || null,
       proof: teams[1].data?.proof || null,
-      proofStatus: teams[1].data?.proof_status || null,
+      proofStatusId: team2ProofStatusId,
+      proofStatusDisplay: team2ProofStatus.displayName,
+      proofStatusColor: team2ProofStatus.color,
     };
 
     return NextResponse.json({

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import type { MatchDetailsResponse } from "@/lib/types/match-details";
+import { TEAM_MATCH_STATUS_COLORS } from "@/lib/team-match-statuses";
+import { PROOF_STATUS_COLORS } from "@/lib/proof-statuses";
 
 interface MatchDetailsModalProps {
   matchId: string;
@@ -103,15 +105,15 @@ export default function MatchDetailsModal({
               <div className="bg-[#1A1F2E] rounded-lg p-4 border border-white/10">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                   🏆 {team1Name}
-                  {details.team1.status && (
+                  {details.team1.statusDisplay && (
                     <span
                       className={`px-2 py-1 rounded text-sm font-medium ${
-                        details.team1.status === "WIN"
-                          ? "bg-green-500/20 text-green-400"
-                          : "bg-red-500/20 text-red-400"
+                        details.team1.statusColor 
+                          ? `${TEAM_MATCH_STATUS_COLORS[details.team1.statusColor].bg} ${TEAM_MATCH_STATUS_COLORS[details.team1.statusColor].text}`
+                          : "bg-gray-500/20 text-gray-400"
                       }`}
                     >
-                      {details.team1.status === "WIN" ? "Победа" : "Поражение"}
+                      {details.team1.statusDisplay}
                     </span>
                   )}
                 </h3>
@@ -137,18 +139,12 @@ export default function MatchDetailsModal({
                     <p className="text-white/60 text-sm mb-1">Статус проверки:</p>
                     <span
                       className={`inline-block px-3 py-1 rounded text-sm ${
-                        details.team1.proofStatus === "approved"
-                          ? "bg-green-500/20 text-green-400"
-                          : details.team1.proofStatus === "rejected"
-                          ? "bg-red-500/20 text-red-400"
-                          : "bg-yellow-500/20 text-yellow-400"
+                        PROOF_STATUS_COLORS[details.team1.proofStatusColor].bg
+                      } ${
+                        PROOF_STATUS_COLORS[details.team1.proofStatusColor].text
                       }`}
                     >
-                      {details.team1.proofStatus === "approved"
-                        ? "Проверено ✓"
-                        : details.team1.proofStatus === "rejected"
-                        ? "Отклонено ✗"
-                        : "Ожидает проверки"}
+                      {details.team1.proofStatusDisplay}
                     </span>
                   </div>
                 </div>
@@ -158,15 +154,15 @@ export default function MatchDetailsModal({
               <div className="bg-[#1A1F2E] rounded-lg p-4 border border-white/10">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                   🏆 {team2Name}
-                  {details.team2.status && (
+                  {details.team2.statusDisplay && (
                     <span
                       className={`px-2 py-1 rounded text-sm font-medium ${
-                        details.team2.status === "WIN"
-                          ? "bg-green-500/20 text-green-400"
-                          : "bg-red-500/20 text-red-400"
+                        details.team2.statusColor 
+                          ? `${TEAM_MATCH_STATUS_COLORS[details.team2.statusColor].bg} ${TEAM_MATCH_STATUS_COLORS[details.team2.statusColor].text}`
+                          : "bg-gray-500/20 text-gray-400"
                       }`}
                     >
-                      {details.team2.status === "WIN" ? "Победа" : "Поражение"}
+                      {details.team2.statusDisplay}
                     </span>
                   )}
                 </h3>
@@ -192,18 +188,12 @@ export default function MatchDetailsModal({
                     <p className="text-white/60 text-sm mb-1">Статус проверки:</p>
                     <span
                       className={`inline-block px-3 py-1 rounded text-sm ${
-                        details.team2.proofStatus === "approved"
-                          ? "bg-green-500/20 text-green-400"
-                          : details.team2.proofStatus === "rejected"
-                          ? "bg-red-500/20 text-red-400"
-                          : "bg-yellow-500/20 text-yellow-400"
+                        PROOF_STATUS_COLORS[details.team2.proofStatusColor].bg
+                      } ${
+                        PROOF_STATUS_COLORS[details.team2.proofStatusColor].text
                       }`}
                     >
-                      {details.team2.proofStatus === "approved"
-                        ? "Проверено ✓"
-                        : details.team2.proofStatus === "rejected"
-                        ? "Отклонено ✗"
-                        : "Ожидает проверки"}
+                      {details.team2.proofStatusDisplay}
                     </span>
                   </div>
                 </div>
