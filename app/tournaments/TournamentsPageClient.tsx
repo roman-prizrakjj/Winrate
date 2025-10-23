@@ -34,6 +34,7 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
   const [selectedTournament, setSelectedTournament] = useState<string>("Все");
   const [selectedTour, setSelectedTour] = useState<string>("Все");
   const [selectedMatch, setSelectedMatch] = useState<AdaptedMatch | null>(null);
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState<'completed' | 'inProgress' | 'protests' | null>(null);
 
   // Получаем список туров для выбранного турнира
   const availableTours = useMemo(() => {
@@ -60,7 +61,14 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
   }, [allMatches, selectedTournament]);
 
   // Функция фильтрации матчей
-  const applyFilters = (matches: AdaptedMatch[], search: string, discipline: string, tournament: string, tour: string) => {
+  const applyFilters = (
+    matches: AdaptedMatch[], 
+    search: string, 
+    discipline: string, 
+    tournament: string, 
+    tour: string,
+    statusFilter: 'completed' | 'inProgress' | 'protests' | null
+  ) => {
     let filtered = matches;
 
     // Фильтр по поисковому запросу
@@ -88,19 +96,34 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
       filtered = filtered.filter(match => match.tourName === tour);
     }
 
+    // Фильтр по статусу
+    if (statusFilter) {
+      if (statusFilter === 'completed') {
+        filtered = filtered.filter(match => match.statusDisplay === "Игра завершена");
+      } else if (statusFilter === 'inProgress') {
+        filtered = filtered.filter(match => 
+          match.statusDisplay === "Идёт игра" || 
+          match.statusDisplay === "Ожидание игры" || 
+          match.statusDisplay === "Ожидание подтверждения"
+        );
+      } else if (statusFilter === 'protests') {
+        filtered = filtered.filter(match => match.statusDisplay === "Протест");
+      }
+    }
+
     return filtered;
   };
 
   // Функция поиска команд
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setFilteredMatches(applyFilters(allMatches, query, selectedDiscipline, selectedTournament, selectedTour));
+    setFilteredMatches(applyFilters(allMatches, query, selectedDiscipline, selectedTournament, selectedTour, selectedStatusFilter));
   };
 
   // Функция изменения дисциплины
   const handleDisciplineChange = (discipline: string) => {
     setSelectedDiscipline(discipline);
-    setFilteredMatches(applyFilters(allMatches, searchQuery, discipline, selectedTournament, selectedTour));
+    setFilteredMatches(applyFilters(allMatches, searchQuery, discipline, selectedTournament, selectedTour, selectedStatusFilter));
   };
 
   // Функция изменения турнира
@@ -108,13 +131,13 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
     setSelectedTournament(tournament);
     // При смене турнира сбрасываем выбранный тур
     setSelectedTour("Все");
-    setFilteredMatches(applyFilters(allMatches, searchQuery, selectedDiscipline, tournament, "Все"));
+    setFilteredMatches(applyFilters(allMatches, searchQuery, selectedDiscipline, tournament, "Все", selectedStatusFilter));
   };
 
   // Функция изменения тура
   const handleTourChange = (tour: string) => {
     setSelectedTour(tour);
-    setFilteredMatches(applyFilters(allMatches, searchQuery, selectedDiscipline, selectedTournament, tour));
+    setFilteredMatches(applyFilters(allMatches, searchQuery, selectedDiscipline, selectedTournament, tour, selectedStatusFilter));
   };
 
   const handleMatchDetails = (matchId: string) => {
@@ -126,6 +149,12 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
 
   const handleCloseModal = () => {
     setSelectedMatch(null);
+  };
+
+  // Функция изменения фильтра по статусу
+  const handleStatusFilterChange = (filter: 'completed' | 'inProgress' | 'protests' | null) => {
+    setSelectedStatusFilter(filter);
+    setFilteredMatches(applyFilters(allMatches, searchQuery, selectedDiscipline, selectedTournament, selectedTour, filter));
   };
 
   // Обновление данных матчей
@@ -186,6 +215,8 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
             completed={matchStats.completed}
             inProgress={matchStats.inProgress}
             protests={matchStats.protests}
+            activeFilter={selectedStatusFilter}
+            onFilterChange={handleStatusFilterChange}
           />
         </div>
 
