@@ -4,6 +4,7 @@ export interface TeamStats {
   id: string;
   position: number;
   name: string;
+  tournamentId?: string | null;
   avatar?: string;
   wins: number;
   losses: number;
