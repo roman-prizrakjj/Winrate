@@ -171,8 +171,9 @@ async function getLeaderboardData(): Promise<{
       const data = row.data || {};
       const wins = data.win || 0;
       const losses = data.loss || 0;
+      const technicalLoss = data.technical_loss || 0;
       const draws = 0; // Нет в структуре данных
-      const gamesPlayed = wins + losses;
+      const gamesPlayed = wins + losses + technicalLoss;
       const winrate = gamesPlayed > 0 
         ? Math.round((wins / gamesPlayed) * 100) 
         : 0;
@@ -184,7 +185,7 @@ async function getLeaderboardData(): Promise<{
         tournamentId: data.tournament?._id || null,
         wins,
         losses,
-        draws,
+        draws: technicalLoss,
         i: 0, // Нет в структуре данных
         cb: data.buchholz || 0,
         s: data.score || 0,
