@@ -166,7 +166,7 @@ export default function TeamCard({ team }: TeamCardProps) {
 
             {/* Информация о команде */}
             <div className="mb-4 p-3 bg-[#1a1f2e] rounded-[8px]">
-              <p className="text-white/60 text-[14px] mb-1">Университет</p>
+              <p className="text-white/60 text-[14px] mb-1">Образовательная организация</p>
               <p className="text-white text-[16px] font-medium">{team.school}</p>
             </div>
 
