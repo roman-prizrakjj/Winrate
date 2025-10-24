@@ -19,11 +19,10 @@ export default function TeamCard({ team }: TeamCardProps) {
     setIsModalOpen(false);
   };
 
-  // Фильтруем капитана - считаем только игроков
-  const playersWithoutCaptain = team.players.filter(p => p.role !== 'captain');
-  const playersCount = playersWithoutCaptain.length;
+  // Считаем всех игроков включая капитана
+  const playersCount = team.players.length;
 
-  // Определяем статус команды на основе дисциплины (передаем кол-во БЕЗ капитана)
+  // Определяем статус команды на основе дисциплины
   const teamStatus = getTeamStatus(playersCount, team.discipline || 'Unknown');
   const requirementText = getDisciplineRequirement(team.discipline || 'Unknown');
   
