@@ -7,6 +7,7 @@ import SearchInput from "@/components/SearchInput";
 import { MatchStatsIndicator } from "@/components/MatchStatsIndicator";
 import MatchDetailsModal from "@/components/MatchDetailsModal";
 import { AdaptedMatch } from "@/lib/types/matches";
+import { CaptainInfo } from "@/lib/types/captains";
 
 interface Tournament {
   _id: string;
@@ -22,9 +23,10 @@ interface TournamentsPageClientProps {
   allMatches: AdaptedMatch[];
   tournaments: Tournament[];
   disciplines: Discipline[];
+  captains: Record<string, CaptainInfo>;
 }
 
-export default function TournamentsPageClient({ allMatches, tournaments, disciplines }: TournamentsPageClientProps) {
+export default function TournamentsPageClient({ allMatches, tournaments, disciplines, captains }: TournamentsPageClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   
@@ -368,6 +370,7 @@ export default function TournamentsPageClient({ allMatches, tournaments, discipl
           matchId={selectedMatch.id}
           team1Name={selectedMatch.team1Name}
           team2Name={selectedMatch.team2Name}
+          captains={captains}
           onClose={handleCloseModal}
         />
       )}

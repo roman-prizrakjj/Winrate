@@ -1,0 +1,87 @@
+[
+  {
+    "_id": "68fe9c869f967a36dbe802c0",
+    "updatedAt": "2025-10-26T22:11:18.826Z",
+    "createdAt": "2025-10-26T22:11:18.826Z",
+    "data": {
+      "role": "c18c129d-0386-4016-a2d1-93850f5da4d4",
+      "team": {
+        "_id": "68e1c13e7a5fcb8505e4044c",
+        "updatedAt": "2025-10-26T22:11:18.889Z",
+        "createdAt": "2025-10-05T00:52:14.108Z",
+        "data": {
+          "name": "ГБПОУ МАДК #2",
+          "educational_organization": "68d3b3ad7e207a1fe44d6435",
+          "teams_participants": [
+            "68e21938a5986ab3bc1f0f26",
+            "68e22894ade39bb72e322d3e",
+            "68e22a32b99bdd8158b20269",
+            "68e2303cb99bdd8158b2045e",
+            "68e23180b99bdd8158b204d8",
+            "68fe55d59f967a36dbe7e1ee",
+            "68fe5755b1af01d3dca81d09",
+            "68fe87d79f967a36dbe7f8f3",
+            "68fe8c1d9f967a36dbe7fb69",
+            "68fe974581b962fe8fdf94ca",
+            "68fe9c869f967a36dbe802c0"
+          ],
+          "invite_links": [
+            "68e1c1467a5fcb8505e40455"
+          ],
+          "logotype": "https://api.emd.one/api/app-aa6cb884/uploader/chunk/default/file/YXBwLWFhNmNiODg0LzIwZWI0NDQ2ZTc1MzllN2M5NzAyOTBiZDc3NzBiOWY0",
+          "discipline": "68d570defffb6787b015ebfb",
+          "division": "68d6a8a8720acf5275a4f3de",
+          "matches_teams": [
+            "68f653449fc9911eab0c977a"
+          ],
+          "status": "7fe24a0d-6b93-48a0-a62c-0d46406afc22",
+          "rosterNumber": 2,
+          "tournaments_teams_stages": [
+            "68f65323bb0e3d5071db4390"
+          ],
+          "tournaments_teams": [
+            "68f2511f77f87d3d6b3a6c57"
+          ]
+        },
+        "notice": "updated by workflow",
+        "user": "c9399892-5aec-4aef-9f04-5328a08d9d5d"
+      },
+      "status": "de227ded-59d9-408f-a3d9-fd6cc4047e64",
+      "telegram": "@x1irwant"
+    },
+    "notice": "created by workflow",
+    "user": {
+      "createdAt": "2025-10-08T08:08:40.098Z",
+      "space": "app-aa6cb884",
+      "login": "x1irwant@icloud.com",
+      "accountVerified": false,
+      "accountStatus": "approved",
+      "external": false,
+      "firstName": "Данил",
+      "lastName": "Пономаренко",
+      "patronymicName": null,
+      "avatarUrl": "https://sun1-94.userapi.com/s/v1/ig2/xK244rketPaFO2o0o_IKQc962yiBrgSQdTewjkPZroq-oDE0J3nyC6GXXbqdKg4BNrCmn14C3DrT_FWTJSyHrK9M.jpg?quality=95&crop=1,303,959,959&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=400x400",
+      "level": 0,
+      "points": 0,
+      "ping": null,
+      "_id": "9724a7d9-9358-4c7f-b99f-8951c5ca20f8",
+      "linkedAccounts": {
+        "vk": {
+          "type": "vk",
+          "login": "x1irwant@icloud.com",
+          "username": null,
+          "firstName": "Данил",
+          "lastName": "Пономаренко",
+          "avatarUrl": "https://sun1-94.userapi.com/s/v1/ig2/xK244rketPaFO2o0o_IKQc962yiBrgSQdTewjkPZroq-oDE0J3nyC6GXXbqdKg4BNrCmn14C3DrT_FWTJSyHrK9M.jpg?quality=95&crop=1,303,959,959&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=400x400"
+        }
+      },
+      "customFields": {
+        "nickname": "ic1v",
+        "role": "player",
+        "telegram_id": "@x1irwant"
+      },
+      "lastActivityInMinutes": null,
+      "pingStatus": "offline"
+    }
+  }
+]

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { MatchDetailsResponse } from "@/lib/types/match-details";
+import type { CaptainInfo } from "@/lib/types/captains";
 import { TEAM_MATCH_STATUS_COLORS, TEAM_MATCH_STATUSES } from "@/lib/team-match-statuses";
 import { PROOF_STATUS_COLORS } from "@/lib/proof-statuses";
 
@@ -9,6 +10,7 @@ interface MatchDetailsModalProps {
   matchId: string;
   team1Name: string;
   team2Name: string;
+  captains: Record<string, CaptainInfo>;
   onClose: () => void;
 }
 
@@ -16,6 +18,7 @@ export default function MatchDetailsModal({
   matchId,
   team1Name,
   team2Name,
+  captains,
   onClose,
 }: MatchDetailsModalProps) {
   const [details, setDetails] = useState<MatchDetailsResponse | null>(null);
@@ -184,6 +187,26 @@ export default function MatchDetailsModal({
                   </select>
                 </h3>
 
+                {/* Информация о капитане */}
+                {(() => {
+                  const captain = captains[details.team1.teamId];
+                  return captain?.nickname ? (
+                    <div className="text-white/60 text-sm mb-3">
+                      👑 Капитан: <span className="text-white font-medium">{captain.nickname}</span>
+                      {captain.telegram && (
+                        <a
+                          href={`https://t.me/${captain.telegram.replace('@', '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-400 hover:text-blue-300 ml-2 transition-colors"
+                        >
+                          📱 Telegram
+                        </a>
+                      )}
+                    </div>
+                  ) : null;
+                })()}
+
                 <div className="space-y-3">
                   <div>
                     <p className="text-white/60 text-sm mb-1">Доказательства:</p>
@@ -240,6 +263,26 @@ export default function MatchDetailsModal({
                     ))}
                   </select>
                 </h3>
+
+                {/* Информация о капитане */}
+                {(() => {
+                  const captain = captains[details.team2.teamId];
+                  return captain?.nickname ? (
+                    <div className="text-white/60 text-sm mb-3">
+                      👑 Капитан: <span className="text-white font-medium">{captain.nickname}</span>
+                      {captain.telegram && (
+                        <a
+                          href={`https://t.me/${captain.telegram.replace('@', '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-400 hover:text-blue-300 ml-2 transition-colors"
+                        >
+                          📱 Telegram
+                        </a>
+                      )}
+                    </div>
+                  ) : null;
+                })()}
 
                 <div className="space-y-3">
                   <div>

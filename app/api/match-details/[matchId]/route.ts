@@ -73,9 +73,13 @@ export async function GET(
     const team1ProofStatus = getProofStatus(team1ProofStatusId);
     const team2ProofStatus = getProofStatus(team2ProofStatusId);
 
+    // Получаем ID команд
+    const team1Id = teams[0].data?.team || "";
+    const team2Id = teams[1].data?.team || "";
+
     const team1Data = {
       _id: teams[0]._id,
-      teamId: teams[0].data?.team || "",
+      teamId: team1Id,
       statusId: team1StatusId,
       statusDisplay: team1Status?.displayName || null,
       statusColor: team1Status?.color || null,
@@ -87,7 +91,7 @@ export async function GET(
 
     const team2Data = {
       _id: teams[1]._id,
-      teamId: teams[1].data?.team || "",
+      teamId: team2Id,
       statusId: team2StatusId,
       statusDisplay: team2Status?.displayName || null,
       statusColor: team2Status?.color || null,

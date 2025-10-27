@@ -4,6 +4,7 @@ import { getAllMatches } from "@/lib/services/matches";
 import { getAllTeamsWithPlayers } from "@/lib/services/teams";
 import { adaptMatches } from "@/lib/adapters/matches";
 import { getDisciplineNameById } from "@/lib/disciplines";
+import { CaptainsResponse } from "@/lib/types/captains";
 
 export const revalidate = 60; // ISR: ревалидация каждые 60 секунд
 
@@ -19,9 +20,12 @@ interface Discipline {
 
 export default async function TournamentsPage() {
   // Загружаем данные параллельно
-  const [matches, teams] = await Promise.all([
+  const [matches, teams, captainsData] = await Promise.all([
     getAllMatches(),
     getAllTeamsWithPlayers(),
+    fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/captains`, {
+      next: { revalidate: 300 }
+    }).then(res => res.json() as Promise<CaptainsResponse>)
   ]);
 
   // Адаптируем матчи для UI (без механики)
@@ -63,6 +67,7 @@ export default async function TournamentsPage() {
           allMatches={adaptedMatches}
           tournaments={tournaments}
           disciplines={disciplines}
+          captains={captainsData.captains}
         />
       </main>
     </div>

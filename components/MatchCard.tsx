@@ -10,7 +10,8 @@ export interface MatchCardProps {
   stageName: string;            // Название этапа
   tourName: string;             // Название тура
   discipline: string;           // ID дисциплины для иконки
-  timeDisplay: string;          // Время "15:00"
+  dateStart: string;            // ISO дата начала
+  dateEnd: string;              // ISO дата окончания
   statusDisplay: string;        // Текст статуса
   statusColor: 'gray' | 'blue' | 'yellow' | 'red' | 'green'; // Цвет статуса
   onViewDetails?: (matchId: string) => void;
@@ -23,7 +24,8 @@ export default function MatchCard({
   stageName,
   tourName,
   discipline,
-  timeDisplay,
+  dateStart,
+  dateEnd,
   statusDisplay,
   statusColor,
   onViewDetails,
@@ -39,6 +41,19 @@ export default function MatchCard({
 
   // Формат отображения турнира: "Этап (Тур)"
   const tournamentDisplay = `${stageName} (${tourName})`;
+
+  // Форматируем дату и время
+  const formatDateTime = (isoDate: string) => {
+    const date = new Date(isoDate);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${day}.${month} ${hours}:${minutes}`;
+  };
+
+  const startDisplay = formatDateTime(dateStart);
+  const endDisplay = formatDateTime(dateEnd);
 
   return (
     <div className="
@@ -144,11 +159,19 @@ export default function MatchCard({
         {/* Правая часть - время */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <span className="
-            text-blue-400 text-[13px] font-medium
-            bg-blue-500/10 border border-blue-500/30 px-2 py-1 rounded-[4px]
+            text-green-400 text-[12px] font-medium
+            bg-green-500/10 border border-green-500/30 px-2 py-1 rounded-[4px]
             whitespace-nowrap
-          ">
-            ⏰ {timeDisplay}
+          " title="Начало матча">
+            🟢 {startDisplay}
+          </span>
+          <span className="text-gray-400 text-[12px]">→</span>
+          <span className="
+            text-red-400 text-[12px] font-medium
+            bg-red-500/10 border border-red-500/30 px-2 py-1 rounded-[4px]
+            whitespace-nowrap
+          " title="Окончание матча">
+            🔴 {endDisplay}
           </span>
         </div>
       </div>

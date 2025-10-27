@@ -31,7 +31,8 @@ export default function MatchList({ matches, onMatchDetails }: MatchListProps) {
           stageName={match.stageName}
           tourName={match.tourName}
           discipline={match.discipline}
-          timeDisplay={match.timeDisplay}
+          dateStart={match.dateStart}
+          dateEnd={match.dateEnd}
           statusDisplay={match.statusDisplay}
           statusColor={match.statusColor as 'gray' | 'blue' | 'yellow' | 'red' | 'green'}
           onViewDetails={() => handleViewDetails(match.id)}
