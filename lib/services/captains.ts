@@ -7,6 +7,41 @@ const ROLE_FIELD = 'col_18760881ff';  // role
 const TELEGRAM_FIELD = 'col_3d293c0ccf';  // telegram
 
 /**
+ * Задержка выполнения
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Retry с экспоненциальной задержкой
+ */
+async function fetchWithRetry<T>(
+  fn: () => Promise<T>,
+  retries: number = 3,
+  baseDelay: number = 1000
+): Promise<T> {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      const isLastAttempt = attempt === retries - 1;
+      
+      if (isLastAttempt) {
+        console.error(`[Captains Retry] Все попытки исчерпаны (${retries})`);
+        throw error;
+      }
+      
+      const delay = baseDelay * Math.pow(2, attempt);
+      console.warn(`[Captains Retry] Попытка ${attempt + 1}/${retries} не удалась. Повтор через ${delay}ms...`);
+      await sleep(delay);
+    }
+  }
+  
+  throw new Error('Unreachable');
+}
+
+/**
  * Загрузить всех капитанов команд
  */
 export async function getAllCaptains(): Promise<Record<string, CaptainInfo>> {
@@ -34,30 +69,46 @@ export async function getAllCaptains(): Promise<Record<string, CaptainInfo>> {
     for (let i = 0; i < parallelRequests; i++) {
       const page = startPage + i;
       promises.push(
-        db.getRows({
+        fetchWithRetry(() => db.getRows({
           limit: pageSize,
           page: page,
           useHumanReadableNames: false
-        })
+        }))
       );
     }
     
-    const results = await Promise.all(promises);
+    const results = await Promise.allSettled(promises);
+    
+    // Пауза между батчами
+    await sleep(500);
     
     let hasFullPage = false;
+    let failedCount = 0;
     
     results.forEach((result) => {
-      const rows = Array.isArray(result) ? result : ((result as any).data || []);
-      if (rows.length > 0) {
-        allRows.push(...rows);
-        
-        if (rows.length === pageSize) {
-          hasFullPage = true;
+      if (result.status === 'fulfilled') {
+        const rows = Array.isArray(result.value) ? result.value : ((result.value as any).data || []);
+        if (rows.length > 0) {
+          allRows.push(...rows);
+          
+          if (rows.length === pageSize) {
+            hasFullPage = true;
+          }
         }
+      } else {
+        failedCount++;
+        console.error(`[Captains] Ошибка загрузки страницы:`, result.reason);
       }
     });
     
-    hasMore = hasFullPage;
+    // Если больше 50% запросов упали - останавливаемся
+    if (failedCount > parallelRequests / 2) {
+      console.error(`[Captains] Слишком много ошибок (${failedCount}/${parallelRequests}). Остановка.`);
+      hasMore = false;
+    } else {
+      hasMore = hasFullPage;
+    }
+    
     batchNumber++;
   }
   

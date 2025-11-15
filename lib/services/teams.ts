@@ -29,6 +29,41 @@ function createSDKClient() {
 }
 
 /**
+ * Задержка выполнения
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Retry с экспоненциальной задержкой
+ */
+async function fetchWithRetry<T>(
+  fn: () => Promise<T>,
+  retries: number = 3,
+  baseDelay: number = 1000
+): Promise<T> {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      const isLastAttempt = attempt === retries - 1;
+      
+      if (isLastAttempt) {
+        console.error(`[Teams Retry] Все попытки исчерпаны (${retries})`);
+        throw error;
+      }
+      
+      const delay = baseDelay * Math.pow(2, attempt);
+      console.warn(`[Teams Retry] Попытка ${attempt + 1}/${retries} не удалась. Повтор через ${delay}ms...`);
+      await sleep(delay);
+    }
+  }
+  
+  throw new Error('Unreachable');
+}
+
+/**
  * Загрузка всех команд с пагинацией
  */
 async function getAllTeams(client: EmdCloud): Promise<any[]> {
@@ -41,13 +76,13 @@ async function getAllTeams(client: EmdCloud): Promise<any[]> {
   console.log(`[Teams Service] Конфигурация: PAGE_SIZE=${pageSize}, PARALLEL_REQUESTS_LIMIT=${parallelLimit}`);
 
   // Загружаем первую страницу
-  const firstPage = await db.getRows({
+  const firstPage = await fetchWithRetry(() => db.getRows({
     limit: pageSize,
     page: 0,
     useHumanReadableNames: true,
     // @ts-ignore
     cache: 'no-store',
-  });
+  }));
 
   if (!Array.isArray(firstPage) || firstPage.length === 0) {
     return [];
@@ -72,28 +107,45 @@ async function getAllTeams(client: EmdCloud): Promise<any[]> {
       
       const batchPromises = Array.from({ length: batchSize }, (_, index) => {
         const currentPage = batchStart + index;
-        return db.getRows({
+        return fetchWithRetry(() => db.getRows({
           limit: pageSize,
           page: currentPage,
           useHumanReadableNames: true,
           // @ts-ignore
           cache: 'no-store',
-        });
+        }));
       });
       
-      const batchResults = await Promise.all(batchPromises);
+      const batchResults = await Promise.allSettled(batchPromises);
+      
+      // Пауза между батчами
+      await sleep(500);
       
       let emptyPagesCount = 0;
+      let failedCount = 0;
+      
       batchResults.forEach((result) => {
-        if (Array.isArray(result) && result.length > 0) {
-          teams.push(...result);
-          if (result.length < pageSize) {
-            hasMore = false;
+        if (result.status === 'fulfilled') {
+          const data = result.value;
+          if (Array.isArray(data) && data.length > 0) {
+            teams.push(...data);
+            if (data.length < pageSize) {
+              hasMore = false;
+            }
+          } else {
+            emptyPagesCount++;
           }
         } else {
-          emptyPagesCount++;
+          failedCount++;
+          console.error(`[Teams] Ошибка загрузки страницы:`, result.reason);
         }
       });
+      
+      // Если больше 50% запросов упали - останавливаемся
+      if (failedCount > batchSize / 2) {
+        console.error(`[Teams] Слишком много ошибок (${failedCount}/${batchSize}). Остановка.`);
+        hasMore = false;
+      }
       
       if (emptyPagesCount === batchSize) {
         hasMore = false;
@@ -111,13 +163,13 @@ async function getAllTeams(client: EmdCloud): Promise<any[]> {
     let hasMore = true;
 
     while (hasMore) {
-      const result = await db.getRows({
+      const result = await fetchWithRetry(() => db.getRows({
         limit: pageSize,
         page,
         useHumanReadableNames: true,
         // @ts-ignore
         cache: 'no-store',
-      });
+      }));
 
       if (!Array.isArray(result) || result.length === 0) {
         hasMore = false;
@@ -150,13 +202,13 @@ async function getAllParticipants(client: EmdCloud): Promise<any[]> {
   const parallelLimit = parseInt(process.env.PARALLEL_REQUESTS_LIMIT || '5', 10);
 
   // Загружаем первую страницу
-  const firstPage = await db.getRows({
+  const firstPage = await fetchWithRetry(() => db.getRows({
     limit: pageSize,
     page: 0,
     useHumanReadableNames: true,
     // @ts-ignore
     cache: 'no-store',
-  });
+  }));
 
   if (!Array.isArray(firstPage) || firstPage.length === 0) {
     return [];
@@ -181,28 +233,45 @@ async function getAllParticipants(client: EmdCloud): Promise<any[]> {
       
       const batchPromises = Array.from({ length: batchSize }, (_, index) => {
         const currentPage = batchStart + index;
-        return db.getRows({
+        return fetchWithRetry(() => db.getRows({
           limit: pageSize,
           page: currentPage,
           useHumanReadableNames: true,
           // @ts-ignore
           cache: 'no-store',
-        });
+        }));
       });
       
-      const batchResults = await Promise.all(batchPromises);
+      const batchResults = await Promise.allSettled(batchPromises);
+      
+      // Пауза между батчами
+      await sleep(500);
       
       let emptyPagesCount = 0;
+      let failedCount = 0;
+      
       batchResults.forEach((result) => {
-        if (Array.isArray(result) && result.length > 0) {
-          participants.push(...result);
-          if (result.length < pageSize) {
-            hasMore = false;
+        if (result.status === 'fulfilled') {
+          const data = result.value;
+          if (Array.isArray(data) && data.length > 0) {
+            participants.push(...data);
+            if (data.length < pageSize) {
+              hasMore = false;
+            }
+          } else {
+            emptyPagesCount++;
           }
         } else {
-          emptyPagesCount++;
+          failedCount++;
+          console.error(`[Participants] Ошибка загрузки страницы:`, result.reason);
         }
       });
+      
+      // Если больше 50% запросов упали - останавливаемся
+      if (failedCount > batchSize / 2) {
+        console.error(`[Participants] Слишком много ошибок (${failedCount}/${batchSize}). Остановка.`);
+        hasMore = false;
+      }
       
       if (emptyPagesCount === batchSize) {
         hasMore = false;
@@ -220,13 +289,13 @@ async function getAllParticipants(client: EmdCloud): Promise<any[]> {
     let hasMore = true;
 
     while (hasMore) {
-      const result = await db.getRows({
+      const result = await fetchWithRetry(() => db.getRows({
         limit: pageSize,
         page,
         useHumanReadableNames: true,
         // @ts-ignore
         cache: 'no-store',
-      });
+      }));
 
       if (!Array.isArray(result) || result.length === 0) {
         hasMore = false;
