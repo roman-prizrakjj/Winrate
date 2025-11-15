@@ -35,6 +35,7 @@ export default function MatchList({ matches, onMatchDetails }: MatchListProps) {
           dateEnd={match.dateEnd}
           statusDisplay={match.statusDisplay}
           statusColor={match.statusColor as 'gray' | 'blue' | 'yellow' | 'red' | 'green'}
+          statusId={match.status}
           onViewDetails={() => handleViewDetails(match.id)}
         />
       ))}

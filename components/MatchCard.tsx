@@ -1,7 +1,10 @@
 "use client";
 
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { getDisciplineIconById } from "@/lib/disciplines";
-import { MATCH_STATUS_COLORS } from "@/lib/match-statuses";
+import { MATCH_STATUS_COLORS, MATCH_STATUSES } from "@/lib/match-statuses";
+import { updateMatchStatus } from '@/app/actions/update-match-status';
 
 export interface MatchCardProps {
   matchId: string;              // ID матча
@@ -14,7 +17,9 @@ export interface MatchCardProps {
   dateEnd: string;              // ISO дата окончания
   statusDisplay: string;        // Текст статуса
   statusColor: 'gray' | 'blue' | 'yellow' | 'red' | 'green'; // Цвет статуса
+  statusId: string;             // ID статуса для обновления
   onViewDetails?: (matchId: string) => void;
+  onStatusUpdate?: () => void;  // Callback после обновления статуса
 }
 
 export default function MatchCard({
@@ -28,16 +33,65 @@ export default function MatchCard({
   dateEnd,
   statusDisplay,
   statusColor,
+  statusId,
   onViewDetails,
+  onStatusUpdate,
 }: MatchCardProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  
+  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState(statusId);
+  const [currentStatusDisplay, setCurrentStatusDisplay] = useState(statusDisplay);
+  const [currentStatusColor, setCurrentStatusColor] = useState(statusColor);
+  const [error, setError] = useState<string | null>(null);
+
   const handleArrowClick = () => {
     if (onViewDetails) {
       onViewDetails(matchId);
     }
   };
 
+  // Обработчик смены статуса
+  const handleStatusChange = async (newStatusId: string) => {
+    // Оптимистичное обновление UI
+    const previousStatus = selectedStatus;
+    const previousDisplay = currentStatusDisplay;
+    const previousColor = currentStatusColor;
+    
+    const newStatus = Object.values(MATCH_STATUSES).find(s => s.id === newStatusId);
+    if (!newStatus) return;
+
+    setSelectedStatus(newStatusId);
+    setCurrentStatusDisplay(newStatus.displayName);
+    setCurrentStatusColor(newStatus.color);
+    setIsStatusDropdownOpen(false);
+    setError(null);
+
+    // Вызов Server Action в транзакции
+    startTransition(async () => {
+      const result = await updateMatchStatus(matchId, newStatusId);
+
+      if (result.success) {
+        // Обновляем ISR кеш
+        router.refresh();
+        // Вызываем callback если есть
+        if (onStatusUpdate) {
+          onStatusUpdate();
+        }
+      } else {
+        // Откатываем изменения при ошибке
+        setSelectedStatus(previousStatus);
+        setCurrentStatusDisplay(previousDisplay);
+        setCurrentStatusColor(previousColor);
+        setError(result.error || 'Не удалось обновить статус');
+        console.error('Ошибка обновления статуса:', result.error);
+      }
+    });
+  };
+
   // Получаем цвета для статуса
-  const statusColors = MATCH_STATUS_COLORS[statusColor];
+  const statusColors = MATCH_STATUS_COLORS[currentStatusColor];
 
   // Формат отображения турнира: "Этап (Тур)"
   const tournamentDisplay = `${stageName} (${tourName})`;
@@ -93,13 +147,67 @@ export default function MatchCard({
         
         {/* Правая часть - статус и кнопка */}
         <div className="flex items-center gap-3 flex-shrink-0">
-          <span className={`
-            text-[13px] font-medium px-3 py-1.5 rounded-[6px]
-            ${statusColors.bg} ${statusColors.border} ${statusColors.text}
-            border whitespace-nowrap
-          `}>
-            {statusDisplay}
-          </span>
+          {/* Статус с dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+              disabled={isPending}
+              className={`
+                text-[13px] font-medium px-3 py-1.5 rounded-[6px]
+                ${statusColors.bg} ${statusColors.border} ${statusColors.text}
+                border whitespace-nowrap
+                hover:opacity-80 flex items-center gap-2
+                transition-all disabled:opacity-50 disabled:cursor-not-allowed
+              `}
+            >
+              {isPending && <span className="animate-spin">⏳</span>}
+              {currentStatusDisplay}
+              <svg 
+                className={`w-3 h-3 transition-transform ${isStatusDropdownOpen ? 'rotate-180' : ''}`}
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {/* Сообщение об ошибке */}
+            {error && (
+              <div className="absolute top-full right-0 mt-1 w-56 px-3 py-2 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-xs z-50">
+                {error}
+              </div>
+            )}
+
+            {/* Dropdown меню */}
+            {isStatusDropdownOpen && (
+              <div className="
+                absolute top-full right-0 mt-1 w-56
+                bg-[#282E3B] border border-[#4A5568] rounded-lg
+                shadow-xl z-50 overflow-hidden
+              ">
+                {Object.values(MATCH_STATUSES).map((status) => (
+                  <button
+                    key={status.id}
+                    onClick={() => handleStatusChange(status.id)}
+                    className={`
+                      w-full px-4 py-2 text-left text-xs
+                      hover:bg-white/5 transition-colors
+                      ${status.id === selectedStatus ? 'bg-white/10' : ''}
+                      ${MATCH_STATUS_COLORS[status.color].text}
+                    `}
+                  >
+                    {status.displayName}
+                    {status.description && (
+                      <span className="block text-[10px] text-white/40 mt-0.5">
+                        {status.description}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           
           <button
             onClick={handleArrowClick}
@@ -175,6 +283,14 @@ export default function MatchCard({
           </span>
         </div>
       </div>
+
+      {/* Закрытие dropdown при клике вне */}
+      {isStatusDropdownOpen && (
+        <div 
+          className="fixed inset-0 z-40"
+          onClick={() => setIsStatusDropdownOpen(false)}
+        />
+      )}
     </div>
   );
 }

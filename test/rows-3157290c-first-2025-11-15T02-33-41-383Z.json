@@ -1,0 +1,30 @@
+[
+  {
+    "_id": "6911e35d3f46be47167a82fe",
+    "updatedAt": "2025-11-14T19:58:40.356Z",
+    "createdAt": "2025-11-10T13:06:37.621Z",
+    "data": {
+      "col_61985e84a6": {
+        "_id": "68e7c43e70394d86cd72f751",
+        "data": {
+          "col_edf500ac9f": "МШКЛ 6 сезон | Лига колледжей | Dota 2"
+        }
+      },
+      "col_345d658ce0": {
+        "_id": "6911b9eea1db7b07ecee3e69",
+        "data": {
+          "col_a0023ff3ed": "4-ый тур Dota 2 КЛ"
+        }
+      },
+      "col_cce3f76ba1": 49,
+      "col_5710e8ecb2": "ae42077e-0118-4e08-8928-17501c31b576",
+      "col_3afa0dc265": [
+        {
+          "_id": "6911e35ea1db7b07ecee6e19"
+        }
+      ],
+      "col_642c52a2d6": true,
+      "col_7faa1122c7": false
+    }
+  }
+]

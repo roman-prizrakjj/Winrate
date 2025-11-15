@@ -1,20 +1,31 @@
 /**
- * Маппинг технических названий полей коллекции MATCHES
- * на читаемые имена для использования в коде
+ * Маппинг читаемых названий полей коллекции MATCHES
+ * Используется при чтении данных с useHumanReadableNames: true
  * 
- * Формат: читаемое_имя → col_xxx (техническое имя в БД)
+ * Формат: читаемое_имя → читаемое_имя (SDK сам преобразует col_xxx)
  */
 
 export const MATCH_FIELD_MAPPING = {
-  // Основные поля матча
+  // Основные поля матча (читаемые имена, которые возвращает SDK)
   tournament: 'tournament',      // ID турнира (этапа) - вложенный объект
   tour: 'tour',                  // ID тура - вложенный объект
   teams: 'teams',                // Массив команд (MATCHES_TEAMS)
   order: 'order',                // Порядковый номер в сетке
-  status: 'status',              // Статус матча (UUID)
+  status: 'status',              // Статус матча (UUID) - для чтения
   processed: 'processed',        // Флаг обработки
-  
-  // Поля могут быть col_xxx, уточнить при необходимости
+} as const;
+
+/**
+ * Технические имена полей для записи/обновления (col_xxx)
+ * Используется при updateRow, createRow
+ */
+export const MATCH_FIELD_TECHNICAL = {
+  status: 'col_5710e8ecb2',      // Статус матча (UUID) - для записи
+  tournament: 'col_61985e84a6',  // ID турнира (этапа)
+  tour: 'col_345d658ce0',        // ID тура
+  teams: 'col_3afa0dc265',       // Массив команд
+  order: 'col_cce3f76ba1',       // Порядковый номер
+  processed: 'col_642c52a2d6',   // Флаг обработки
 } as const;
 
 /**

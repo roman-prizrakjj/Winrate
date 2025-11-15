@@ -19,7 +19,7 @@ const TEST_CONFIG = {
   MAX_PREVIEW_FIELDS: 5,          // Максимум полей для отображения в кратком обзоре
   
   // Параметры SDK
-  USE_HUMAN_READABLE_NAMES: true, // Использовать человекочитаемые имена полей
+  USE_HUMAN_READABLE_NAMES: false, // Использовать человекочитаемые имена полей
   USE_OPTIMISE_RESPONSE: true,   // Оптимизировать размер ответа (уменьшает размер данных)
   // ⚠️ ВНИМАНИЕ: Комбинация обоих = true вызывает ошибку SDK! Автоматически отключается hasOptimiseResponse
   

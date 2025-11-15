@@ -18,6 +18,41 @@ function createSDKClient() {
 }
 
 /**
+ * Задержка выполнения
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Retry с экспоненциальной задержкой
+ */
+async function fetchWithRetry<T>(
+  fn: () => Promise<T>,
+  retries: number = 3,
+  baseDelay: number = 1000
+): Promise<T> {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      const isLastAttempt = attempt === retries - 1;
+      
+      if (isLastAttempt) {
+        console.error(`[Retry] Все попытки исчерпаны (${retries})`);
+        throw error;
+      }
+      
+      const delay = baseDelay * Math.pow(2, attempt); // 1s, 2s, 4s
+      console.warn(`[Retry] Попытка ${attempt + 1}/${retries} не удалась. Повтор через ${delay}ms...`);
+      await sleep(delay);
+    }
+  }
+  
+  throw new Error('Retry failed'); // Никогда не достигнется
+}
+
+/**
  * Загрузка страниц данных батчами с контролем параллелизма
  * @param db - Database instance
  * @param totalPages - Общее количество страниц
@@ -166,34 +201,56 @@ export async function getAllMatches(): Promise<Match[]> {
         
         const batchPromises = Array.from({ length: batchSize }, (_, index) => {
           const currentPage = batchStart + index;
-          return db.getRows({
-            limit: pageSize,
-            page: currentPage,
-            useHumanReadableNames: true,
-            // @ts-ignore
-            cache: 'no-store',
-          });
+          
+          // Оборачиваем каждый запрос в retry логику
+          return fetchWithRetry(() => 
+            db.getRows({
+              limit: pageSize,
+              page: currentPage,
+              useHumanReadableNames: true,
+              // @ts-ignore
+              cache: 'no-store',
+            }),
+            3, // 3 попытки
+            1000 // Начальная задержка 1 секунда
+          );
         });
         
-        const batchResults = await Promise.all(batchPromises);
+        // Используем allSettled чтобы не падать если один запрос упал
+        const batchResults = await Promise.allSettled(batchPromises);
         
         let emptyPagesCount = 0;
+        let errorCount = 0;
+        
         batchResults.forEach((result, index) => {
-          if (Array.isArray(result) && result.length > 0) {
-            matches.push(...(result as Match[]));
-            console.log(`[Matches Service] Страница ${batchStart + index}: загружено ${result.length} матчей`);
-            
-            // Если страница неполная, значит это последняя
-            if (result.length < pageSize) {
-              hasMore = false;
+          if (result.status === 'fulfilled') {
+            const data = result.value;
+            if (Array.isArray(data) && data.length > 0) {
+              matches.push(...(data as Match[]));
+              console.log(`[Matches Service] Страница ${batchStart + index}: загружено ${data.length} матчей`);
+              
+              // Если страница неполная, значит это последняя
+              if (data.length < pageSize) {
+                hasMore = false;
+              }
+            } else {
+              emptyPagesCount++;
             }
           } else {
-            emptyPagesCount++;
+            // Запрос упал даже после retry
+            errorCount++;
+            console.error(`[Matches Service] Страница ${batchStart + index}: ошибка загрузки -`, result.reason?.message || result.reason);
           }
         });
         
         // Если все страницы в батче пустые, останавливаемся
         if (emptyPagesCount === batchSize) {
+          hasMore = false;
+        }
+        
+        // Если слишком много ошибок, останавливаемся
+        if (errorCount >= batchSize / 2) {
+          console.warn('[Matches Service] Слишком много ошибок в батче, прерывание');
           hasMore = false;
         }
         
@@ -203,6 +260,12 @@ export async function getAllMatches(): Promise<Match[]> {
         if (page > 100) {
           console.warn('[Matches Service] Достигнут лимит страниц (100), прерывание');
           break;
+        }
+        
+        // Задержка между батчами для снижения нагрузки на API
+        if (hasMore) {
+          await sleep(500); // 500ms пауза между батчами
+          console.log('[Matches Service] Пауза 500ms перед следующим батчем...');
         }
       }
     }
