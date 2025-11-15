@@ -6,6 +6,41 @@ import { emdCloud, COLLECTIONS } from '@/lib/emd-cloud';
 // ISR: кеш на время из .env (по умолчанию 10 минут)
 export const revalidate = parseInt(process.env.REVALIDATE_TIME || '600', 10);
 
+/**
+ * Задержка выполнения
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Retry с экспоненциальной задержкой
+ */
+async function fetchWithRetry<T>(
+  fn: () => Promise<T>,
+  retries: number = 3,
+  baseDelay: number = 1000
+): Promise<T> {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      const isLastAttempt = attempt === retries - 1;
+      
+      if (isLastAttempt) {
+        console.error(`[Leaderboard Retry] Все попытки исчерпаны (${retries})`);
+        throw error;
+      }
+      
+      const delay = baseDelay * Math.pow(2, attempt);
+      console.warn(`[Leaderboard Retry] Попытка ${attempt + 1}/${retries} не удалась. Повтор через ${delay}ms...`);
+      await sleep(delay);
+    }
+  }
+  
+  throw new Error('Unreachable');
+}
+
 interface TeamStatsResponse {
   id: string;
   name: string;
@@ -41,13 +76,13 @@ async function getLeaderboardData(): Promise<{
     console.log(`[Leaderboard] Конфигурация: PAGE_SIZE=${pageSize}, PARALLEL_REQUESTS_LIMIT=${parallelLimit}`);
 
     // Загружаем первую страницу
-    const firstPage = await db.getRows({
+    const firstPage = await fetchWithRetry(() => db.getRows({
       limit: pageSize,
       page: 0,
       useHumanReadableNames: true,
       // @ts-ignore
       cache: 'no-store',
-    });
+    }));
 
     if (!Array.isArray(firstPage) || firstPage.length === 0) {
       console.log('[Leaderboard] Записей не найдено');
@@ -68,13 +103,13 @@ async function getLeaderboardData(): Promise<{
       let hasMore = true;
 
       while (hasMore) {
-        const result = await db.getRows({
+        const result = await fetchWithRetry(() => db.getRows({
           limit: pageSize,
           page,
           useHumanReadableNames: true,
           // @ts-ignore
           cache: 'no-store',
-        });
+        }));
 
         if (!Array.isArray(result) || result.length === 0) {
           hasMore = false;
@@ -109,30 +144,47 @@ async function getLeaderboardData(): Promise<{
         
         const batchPromises = Array.from({ length: batchSize }, (_, index) => {
           const currentPage = batchStart + index;
-          return db.getRows({
+          return fetchWithRetry(() => db.getRows({
             limit: pageSize,
             page: currentPage,
             useHumanReadableNames: true,
             // @ts-ignore
             cache: 'no-store',
-          });
+          }));
         });
         
-        const batchResults = await Promise.all(batchPromises);
+        const batchResults = await Promise.allSettled(batchPromises);
+        
+        // Пауза между батчами
+        await sleep(500);
         
         let emptyPagesCount = 0;
+        let failedCount = 0;
+        
         batchResults.forEach((result, index) => {
-          if (Array.isArray(result) && result.length > 0) {
-            allRows.push(...result);
-            console.log(`[Leaderboard] Страница ${batchStart + index}: загружено ${result.length} записей`);
-            
-            if (result.length < pageSize) {
-              hasMore = false;
+          if (result.status === 'fulfilled') {
+            const data = result.value;
+            if (Array.isArray(data) && data.length > 0) {
+              allRows.push(...data);
+              console.log(`[Leaderboard] Страница ${batchStart + index}: загружено ${data.length} записей`);
+              
+              if (data.length < pageSize) {
+                hasMore = false;
+              }
+            } else {
+              emptyPagesCount++;
             }
           } else {
-            emptyPagesCount++;
+            failedCount++;
+            console.error(`[Leaderboard] Ошибка загрузки страницы ${batchStart + index}:`, result.reason);
           }
         });
+        
+        // Если больше 50% запросов упали - останавливаемся
+        if (failedCount > batchSize / 2) {
+          console.error(`[Leaderboard] Слишком много ошибок (${failedCount}/${batchSize}). Остановка.`);
+          hasMore = false;
+        }
         
         if (emptyPagesCount === batchSize) {
           hasMore = false;
